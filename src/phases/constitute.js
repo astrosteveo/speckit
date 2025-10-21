@@ -5,7 +5,12 @@
  */
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Execute the constitute phase
@@ -44,9 +49,9 @@ export function executeConstitutePhase(baseDir, projectName, responses) {
     successCriteria
   };
 
-  // Render template
+  // Render template (use __dirname to get path relative to this module)
   const template = readFileSync(
-    join(process.cwd(), 'src/templates/constitution.md'),
+    join(__dirname, '..', 'templates', 'constitution.md'),
     'utf-8'
   );
 
