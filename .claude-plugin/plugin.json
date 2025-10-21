@@ -1,0 +1,42 @@
+{
+  "name": "speckit",
+  "version": "1.0.0",
+  "displayName": "SpecKit",
+  "description": "Test-driven specification-first development toolkit for Claude Code",
+  "author": "astrosteveo",
+  "license": "MIT",
+  "repository": "https://github.com/astrosteveo/speckit",
+  "main": ".claude/commands/speckit.md",
+  "commands": [
+    {
+      "name": "speckit",
+      "description": "Start or continue a spec-driven development workflow",
+      "path": ".claude/commands/speckit.md"
+    }
+  ],
+  "agents": [
+    {
+      "name": "analyst",
+      "description": "Requirements analysis agent",
+      "path": ".claude/agents/analyst.md"
+    },
+    {
+      "name": "architect",
+      "description": "Technical planning and architecture agent",
+      "path": ".claude/agents/architect.md"
+    },
+    {
+      "name": "engineer",
+      "description": "Test-driven implementation agent",
+      "path": ".claude/agents/engineer.md"
+    }
+  ],
+  "engines": {
+    "claudeCode": ">=1.0.0",
+    "node": ">=18.0.0"
+  },
+  "categories": ["workflow", "testing", "architecture"],
+  "keywords": ["tdd", "specification", "testing", "workflow", "quality"],
+  "homepage": "https://github.com/astrosteveo/speckit#readme",
+  "bugs": "https://github.com/astrosteveo/speckit/issues"
+}
