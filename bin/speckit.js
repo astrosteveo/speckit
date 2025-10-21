@@ -15,6 +15,10 @@ import { routeCommand, registerCommand } from '../src/cli/router.js';
 // Import commands
 import { initCommand } from '../src/commands/init.js';
 import { statusCommand } from '../src/commands/status.js';
+import { constituteCommand } from '../src/commands/constitute.js';
+import { specifyCommand } from '../src/commands/specify.js';
+import { validateCommand } from '../src/commands/validate.js';
+import { configCommand } from '../src/commands/config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,6 +34,28 @@ registerCommand('status', statusCommand, {
   description: 'Show workflow progress and status',
   usage: 'speckit status',
   aliases: ['s']
+});
+
+registerCommand('constitute', constituteCommand, {
+  description: 'Run the constitute phase (define project principles)',
+  usage: 'speckit constitute'
+});
+
+registerCommand('specify', specifyCommand, {
+  description: 'Run the specify phase (create requirements)',
+  usage: 'speckit specify'
+});
+
+registerCommand('validate', validateCommand, {
+  description: 'Validate current phase quality',
+  usage: 'speckit validate',
+  aliases: ['v']
+});
+
+registerCommand('config', configCommand, {
+  description: 'Get or set configuration values',
+  usage: 'speckit config [get|set|unset|list] [key] [value]',
+  aliases: ['c']
 });
 
 // Parse arguments
