@@ -17,7 +17,7 @@ describe('Package Setup', () => {
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
 
     // Required fields
-    expect(pkg.name).toBe('speckit');
+    expect(pkg.name).toBe('@astrosteveo/speckit');
     expect(pkg.version).toMatch(/^\d+\.\d+\.\d+$/);
     expect(pkg.description).toBeDefined();
     expect(pkg.license).toBe('MIT');
