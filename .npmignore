@@ -1,0 +1,18 @@
+# Don't publish these to npm
+.speckit/
+.git/
+.github/
+node_modules/
+tests/
+*.test.js
+*.spec.js
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+.DS_Store
+coverage/
+.nyc_output/
+BUILD_SUMMARY.md
+PROGRESS.md
+vitest.config.js

@@ -1,5 +1,5 @@
 {
-  "name": "speckit",
+  "name": "@astrosteveo/speckit",
   "version": "2.0.0",
   "description": "Test-driven specification-first development toolkit for Claude Code",
   "main": "src/index.js",

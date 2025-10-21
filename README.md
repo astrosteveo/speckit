@@ -1,387 +1,212 @@
-# SpecKit
+# SpecKit v2.0
 
-> **Test-driven, specification-first development for Claude Code**
+**Specification-Driven Development for Claude Code**
 
-Transform project ideas into production-ready code through structured, quality-gated phases.
+Transform ideas into production-ready code through test-driven development with AI agents.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-34%2F34%20passing-success)](tests/)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-success)](#)
+```
+┌──────────────────────────────────────────────────────────┐
+│                      SpecKit v2.0                         │
+│    Idea → Constitution → Spec → Plan → Implementation    │
+└──────────────────────────────────────────────────────────┘
+```
 
-## The Problem
+## Features ✨
 
-AI-assisted development often leads to "vibe coding":
-- ❌ Unclear requirements that shift during implementation
-- ❌ Code that doesn't match actual needs
-- ❌ Difficult-to-maintain codebases
-- ❌ Lost context between sessions
-- ❌ No clear source of truth
-
-## The Solution
-
-SpecKit enforces a structured workflow:
-- ✅ **Specifications first**, code second
-- ✅ **Quality gates** prevent downstream problems
-- ✅ **Test-driven development** enforced, not suggested
-- ✅ **Human checkpoints** at every phase
-- ✅ **Traceable artifacts** from idea to implementation
+- 🚀 **Zero Runtime Dependencies** - Pure Node.js, no bloat
+- 🎨 **Beautiful CLI** - Colors, spinners, progress bars
+- 📋 **4-Phase Workflow** - Structured, repeatable process
+- 🤖 **AI Agent Integration** - Requirements Analyst, Technical Architect, Implementation Engineer
+- ✅ **Quality Gates** - Built-in validation at every phase
+- 🔧 **Configurable** - Hierarchical configuration system
+- 📦 **npm Ready** - Install globally or use locally
 
 ## Quick Start
 
-### Installation
-
 ```bash
-# Clone the repository
-git clone https://github.com/astrosteveo/speckit.git
-cd speckit
+# Install (when published to npm)
+npm install -g speckit
 
-# Install dependencies (dev only - zero runtime deps!)
-npm install
+# Or use locally
+node bin/speckit.js init my-awesome-app
+
+# Follow the workflow
+speckit constitute  # Define principles
+speckit specify     # Create requirements
+speckit plan        # Design architecture
+speckit implement   # Build with TDD
+
+# Check progress anytime
+speckit status
 ```
 
-### Usage
-
-```bash
-# Start a new workflow
-/speckit my-project
-
-# Resume existing workflow
-/speckit
-
-# Check status
-/speckit status
-```
-
-## How It Works
-
-### Four Phases, Four Quality Gates
-
-```
-Idea → Constitute → Specify → Plan → Implement → Production Code
-         ✓           ✓         ✓         ✓
-       (Review)   (≥85%)    (≥85%)    (≥80%)
-```
+## The SpecKit Workflow
 
 ### Phase 1: Constitute (5-10 min)
 
-Define guiding principles for your project.
+Define your project's guiding principles:
 
-**Output**: `CONSTITUTION.md`
+```bash
+$ speckit constitute
 
-```markdown
-# My Project Constitution
+📜 Phase 1: Constitute - Define Project Principles
 
-## Principles
-1. User privacy is paramount
-2. Simplicity over feature-richness
-3. Mobile-first design
+Question 1: Core Purpose
+> A REST API for managing todos with user authentication
+
+Question 2: Guiding Principles
+> 1. Security first - protect user data
+> 2. Simple > Feature-rich
+> 3. API-first design
+
+✓ Constitution created!
 ```
+
+**Output**: `.speckit/CONSTITUTION.md`
 
 ### Phase 2: Specify (20-40 min)
 
-Create detailed, testable requirements.
+Create detailed requirements with the Requirements Analyst agent:
 
-**Agent**: Requirements Analyst
-**Quality Gate**: ≥85% (completeness, clarity, testability)
-**Output**: `SPECIFICATION.md` with requirements, user stories, acceptance criteria
+```bash
+$ speckit specify
 
-**Example**:
-```markdown
-## FR001: User Authentication
-Users can create accounts with email/password, with password
-strength validation (min 8 chars, 1 uppercase, 1 number, 1 special).
+📋 Phase 2: Specify - Create Detailed Requirements
 
-## User Story
-As a user, I want to create an account
-so that I can save my data securely.
+Launching Requirements Analyst agent...
 
-Acceptance Criteria:
-- [ ] POST /auth/register accepts email, password
-- [ ] Password validated against strength rules
-- [ ] Returns 201 with user object on success
-- [ ] Returns 400 with validation errors
+✓ Specification created! (Quality: 96/100)
+  • 10 functional requirements
+  • 5 non-functional requirements
+  • 6 user stories with acceptance criteria
 ```
+
+**Output**: `.speckit/SPECIFICATION.md` + quality report
 
 ### Phase 3: Plan (30-60 min)
 
-Design architecture and break into tasks.
-
-**Agent**: Technical Architect
-**Quality Gate**: ≥85% (completeness, actionability, feasibility)
-**Output**: `PLAN.md` with architecture, tech choices, task breakdown
-
-**Example**:
-```markdown
-## Architecture
-React frontend + Express API + PostgreSQL database
-
-## Tasks
-T001: Initialize project (2h)
-T002: Database schema (4h) [depends on T001]
-T003: Auth tests (3h) [depends on T002]
-T004: Auth implementation (4h) [depends on T003]
-```
-
-### Phase 4: Implement (Varies)
-
-Build with strict TDD.
-
-**Agent**: Implementation Engineer
-**Quality Gate** (per task): Tests passing + Coverage ≥80% + No lint errors
-**Output**: Working code + comprehensive tests
-
-**Process**:
-1. **RED**: Write failing tests
-2. **GREEN**: Implement until tests pass
-3. **REFACTOR**: Clean up code
-4. **VALIDATE**: Quality checks
-5. **COMMIT**: Save progress
-
-## Features
-
-### 🎯 Quality-Driven
-
-Every phase has automated quality scoring:
-- **Specifications**: Completeness, clarity, testability
-- **Plans**: Actionability, feasibility, proper task sizing
-- **Implementation**: Test coverage, code quality, acceptance criteria
-
-### 🔄 Iterative
-
-Easy to refine at any checkpoint:
-```bash
-/speckit refine
-```
-
-Specifications version automatically (v1, v2, v3...) with changelogs.
-
-### 🧪 TDD Enforced
-
-Not optional. Not suggested. **Required.**
-
-- Tests before implementation
-- 80% minimum coverage
-- All tests must pass
-- No lint errors allowed
-
-### 📊 Progress Tracking
-
-Always know where you are:
-
-```
-Phase 4: Implementation [████████░░] 80%
-  ✅ T001: Project setup (2h)
-  ✅ T002: Database schema (4h)
-  ✅ T003: Auth tests (3h)
-  ✅ T004: Auth implementation (4h)
-  ⏳ T005: API tests (3h) <- Current
-  ⏸  T006: API implementation (6h)
-```
-
-### 🎨 Zero Dependencies
-
-Runtime: **0 dependencies**
-All built on Node.js standard library.
-
-DevDeps: Only Vitest for testing.
-
-## Example Workflow
-
-```
-You: /speckit blog-api
-
-SpecKit: Let's define your project principles...
-
-[Constitution created - 5 min]
-
-SpecKit: Now let's create the specification...
-
-[Specification created - Quality: 88/100]
-✅ 8 functional requirements
-✅ 3 non-functional requirements
-✅ 4 user stories
-
-Review .speckit/SPECIFICATION.md
-
-You: Approved
-
-[Plan created - Quality: 91/100]
-✅ Express + PostgreSQL architecture
-✅ 15 tasks, 42 hour estimate
-✅ Clear dependency graph
-
-Review .speckit/PLAN.md
-
-You: Approved
-
-[Implementation begins]
-
-SpecKit: T001: Initialize Project
-RED phase - writing tests...
-GREEN phase - implementing...
-REFACTOR phase - cleaning up...
-✅ Complete (Coverage: 95%)
-
-Moving to T002...
-```
-
-## Project Structure
-
-```
-your-project/
-├── .speckit/
-│   ├── state.json              # Workflow state
-│   ├── CONSTITUTION.md         # Project principles
-│   ├── SPECIFICATION.md        # Requirements
-│   ├── PLAN.md                 # Architecture & tasks
-│   └── quality/
-│       ├── spec-quality.json
-│       ├── plan-quality.json
-│       └── T001-quality.json
-├── src/                        # Your code
-├── tests/                      # Your tests
-└── package.json
-```
-
-## Philosophy
-
-### From Our Constitution
-
-1. **Simplicity Over Complexity** - One command, clear workflow
-2. **Test-First, Always** - TDD is not optional
-3. **Specifications Are Executable** - They drive implementation, not document it
-4. **Human Judgment Required** - AI suggests, humans decide
-5. **Iterative, Not Linear** - Easy to refine and improve
-
-### We Eat Our Own Dog Food
-
-SpecKit was built using SpecKit principles:
-- Started with [CONSTITUTION.md](CONSTITUTION.md)
-- Created [SPECIFICATION.md](SPECIFICATION.md)
-- Built with TDD (34/34 tests passing, 100% coverage)
-- Zero dependencies (we practice what we preach)
-
-## Testing
+Design architecture with the Technical Architect agent:
 
 ```bash
-# Run all tests
-npm test
+$ speckit plan
 
-# Run with coverage
-npm run test:coverage
+🏗️ Phase 3: Plan - Design Technical Architecture
 
-# Run tests in watch mode
-npm run test:watch
+Launching Technical Architect agent...
 
-# Run tests with UI
-npm run test:ui
+✓ Plan created! (Quality: 100/100)
+  • Architecture overview
+  • 24 tasks, 80 hours estimated
+  • Clear dependencies
 ```
 
-**Current Status**: 34/34 tests passing, 100% coverage
+**Output**: `.speckit/PLAN.md` + quality report
 
-## Architecture
+### Phase 4: Implement (varies)
 
-```
-speckit/
-├── src/
-│   ├── core/
-│   │   ├── state.js        # State management (18 tests)
-│   │   └── quality.js      # Quality validation (16 tests)
-│   ├── phases/             # [Future] Phase implementations
-│   ├── agents/             # Agent definitions
-│   │   ├── analyst.md      # Requirements analysis
-│   │   ├── architect.md    # Technical planning
-│   │   └── engineer.md     # TDD implementation
-│   └── templates/          # [Future] Templates
-├── .claude/
-│   ├── commands/
-│   │   └── speckit.md      # Main command
-│   └── agents/             # (symlink to src/agents)
-└── tests/
-    ├── unit/
-    └── integration/        # [Future]
-```
-
-## Development
-
-### Running Tests
+Build with TDD using the Implementation Engineer agent:
 
 ```bash
-npm test                    # Run all tests
-npm run test:coverage      # With coverage report
+$ speckit implement
+
+🔨 Phase 4: Implement - Build with TDD
+
+Task 1/24: Package Setup
+  RED: Write failing tests...
+  GREEN: Implement features...
+  REFACTOR: Clean up code...
+  ✓ Complete (Coverage: 92%)
+
+Progress: [████████░░] 80%
 ```
 
-### Code Quality
+**Output**: Working code + tests + quality reports
 
-- **Linting**: ESLint (zero errors policy)
-- **Testing**: Vitest
-- **Coverage**: Minimum 80%
-- **Dependencies**: Zero runtime, minimal dev
+## Commands
 
-## Contributing
+### Project Management
 
-SpecKit is designed to be simple and focused. Contributions welcome!
+```bash
+speckit init [name]         # Initialize new workflow
+speckit status              # Show progress dashboard
+speckit validate            # Check quality of current phase
+```
 
-**Before contributing**:
-1. Read [CONSTITUTION.md](CONSTITUTION.md) - our principles
-2. Read [SPECIFICATION.md](SPECIFICATION.md) - what SpecKit does
-3. Follow TDD - tests before code
-4. Maintain zero runtime dependencies
+### Workflow Phases
 
-## Comparison
+```bash
+speckit constitute          # Define project principles
+speckit specify             # Create requirements (with AI agent)
+speckit plan                # Design architecture (with AI agent)
+speckit implement           # Build with TDD (with AI agent)
+```
 
-### SpecKit vs Traditional Development
+### Configuration
 
-| Aspect | Traditional | SpecKit |
-|--------|-------------|---------|
-| Requirements | Vague or missing | Structured, scored ≥85% |
-| Planning | Ad-hoc | Quality-gated, task-level |
-| Testing | After coding | Before coding (TDD enforced) |
-| Quality | Hope for the best | Gates prevent bad code |
-| Documentation | Outdated | Living specification |
-| Traceability | Lost in commits | Idea → Spec → Plan → Code |
+```bash
+speckit config list         # Show all configuration
+speckit config get <key>    # Get specific value
+speckit config set <key> <value>  # Set value
+```
 
-### SpecKit vs Other Tools
+### Utility
 
-**vs Spec-Kit (GitHub)**:
-- SpecKit is optimized specifically for Claude Code
-- Built-in agent orchestration
-- Automated quality scoring
-- Zero external dependencies
+```bash
+speckit --version           # Show version
+speckit --help              # Show help
+```
 
-**vs Manual TDD**:
-- SpecKit enforces TDD, doesn't just suggest it
-- Quality gates prevent shortcuts
-- Specification stays current
+## Example Output
 
-## Roadmap
+### Status Dashboard
 
-- [x] Core state management
-- [x] Quality validation system
-- [x] Agent definitions
-- [x] Main command
-- [ ] Phase implementations (constitute, specify, plan, implement)
-- [ ] Refinement workflows
-- [ ] Integration tests
-- [ ] Example projects
-- [ ] Plugin marketplace listing
+```
+═══════════════════════════════════════════
+📊 SpecKit Workflow Status
+═══════════════════════════════════════════
+
+Project: my-awesome-app
+Workflow ID: 2025-10-20-my-awesome-app
+Created: 2025-10-20
+Last Updated: 2025-10-20 10:30:45 PM
+
+Progress: [████████░░] 75%
+
+Phase Status:
+  ✅ Constitute   Complete
+  ✅ Specify      Complete      96/100
+  ✅ Plan         Complete      100/100
+  ⏳ Implement    In Progress   (18/24 tasks)
+
+Current Phase: implement
+Next Action: Run speckit implement to continue building
+```
+
+### Configuration
+
+```
+⚙️  Configuration
+
+Key                              Value
+────────────────────────────────────────────
+editor                           code
+quiet                            false
+qualityThreshold.specification   85
+qualityThreshold.plan            85
+qualityThreshold.implementation  80
+outputFormat                     markdown
+docsOutputDir                    docs
+```
+
+## Requirements
+
+- Node.js ≥18.0.0
+- No other dependencies!
 
 ## License
 
-MIT - See [LICENSE](LICENSE)
-
-## Acknowledgments
-
-- Inspired by [Spec-Kit](https://github.com/github/spec-kit)
-- Built for [Claude Code](https://claude.com/claude-code)
-- Follows test-driven development principles
+MIT
 
 ---
 
-**Ready to build better software?**
-
-```bash
-/speckit
-```
-
-**Built with SpecKit** 🛠️ **Following SpecKit principles** 📋 **100% test coverage** ✅
+**Status**: v2.0.0 - Production Ready 🚀
