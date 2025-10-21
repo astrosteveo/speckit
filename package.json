@@ -1,21 +1,39 @@
 {
   "name": "speckit",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Test-driven specification-first development toolkit for Claude Code",
   "main": "src/index.js",
   "type": "module",
+  "bin": {
+    "speckit": "bin/speckit.js"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    ".claude/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "prepublishOnly": "npm test"
   },
   "keywords": [
     "claude-code",
     "tdd",
     "specification",
     "agent",
-    "workflow"
+    "workflow",
+    "cli",
+    "development",
+    "documentation"
   ],
   "author": "astrosteveo",
   "license": "MIT",
@@ -23,6 +41,10 @@
     "type": "git",
     "url": "https://github.com/astrosteveo/speckit.git"
   },
+  "bugs": {
+    "url": "https://github.com/astrosteveo/speckit/issues"
+  },
+  "homepage": "https://github.com/astrosteveo/speckit#readme",
   "devDependencies": {
     "@vitest/ui": "^2.1.9",
     "vitest": "^2.1.9"

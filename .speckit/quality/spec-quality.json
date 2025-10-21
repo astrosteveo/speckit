@@ -1,0 +1,10 @@
+{
+  "overall": 96,
+  "completeness": 100,
+  "clarity": 90,
+  "testability": 98,
+  "threshold": 85,
+  "passed": true,
+  "issues": [],
+  "recommendations": []
+}

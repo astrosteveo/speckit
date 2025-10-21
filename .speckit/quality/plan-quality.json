@@ -1,0 +1,10 @@
+{
+  "overall": 100,
+  "completeness": 100,
+  "actionability": 100,
+  "feasibility": 100,
+  "threshold": 85,
+  "passed": true,
+  "issues": [],
+  "recommendations": []
+}
