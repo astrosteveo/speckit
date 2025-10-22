@@ -4,6 +4,13 @@
  * Parse command-line arguments into structured format
  */
 
+/**
+ * Convert kebab-case to camelCase
+ */
+function toCamelCase(str) {
+  return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
+}
+
 export function parseArgs(argv) {
   const args = argv.slice(2); // Remove 'node' and script path
 
@@ -28,15 +35,16 @@ export function parseArgs(argv) {
       // Long flag
       const flag = arg.slice(2);
       const [key, value] = flag.split('=');
+      const camelKey = toCamelCase(key);
 
       if (value !== undefined) {
         // --key=value
-        parsed.flags[key] = value;
-      } else if (key in parsed.flags) {
+        parsed.flags[camelKey] = value;
+      } else if (camelKey in parsed.flags) {
         // Boolean flag
-        parsed.flags[key] = true;
+        parsed.flags[camelKey] = true;
       } else {
-        // Custom flag
+        // Custom flag (use original key for custom flags)
         parsed.flags[key] = true;
       }
     } else if (arg.startsWith('-')) {

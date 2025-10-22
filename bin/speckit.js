@@ -19,9 +19,22 @@ import { constituteCommand } from '../src/commands/constitute.js';
 import { specifyCommand } from '../src/commands/specify.js';
 import { validateCommand } from '../src/commands/validate.js';
 import { configCommand } from '../src/commands/config.js';
+import { docsCommand } from '../src/commands/docs.js';
+import { pluginsCommand } from '../src/commands/plugins.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Signal handlers for graceful shutdown
+process.on('SIGINT', () => {
+  console.log('\n\nReceived SIGINT. Exiting gracefully...');
+  process.exit(130); // Standard exit code for SIGINT
+});
+
+process.on('SIGTERM', () => {
+  console.log('\n\nReceived SIGTERM. Exiting gracefully...');
+  process.exit(143); // Standard exit code for SIGTERM
+});
 
 // Register commands
 registerCommand('init', initCommand, {
@@ -56,6 +69,18 @@ registerCommand('config', configCommand, {
   description: 'Get or set configuration values',
   usage: 'speckit config [get|set|unset|list] [key] [value]',
   aliases: ['c']
+});
+
+registerCommand('docs', docsCommand, {
+  description: 'Generate documentation from specification and code',
+  usage: 'speckit docs [generate] [--format=markdown|html] [--output=dir] [--incremental]',
+  aliases: ['d']
+});
+
+registerCommand('plugins', pluginsCommand, {
+  description: 'List or create plugins',
+  usage: 'speckit plugins [list|create] [name]',
+  aliases: ['p']
 });
 
 // Parse arguments

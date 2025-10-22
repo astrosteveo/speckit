@@ -93,10 +93,65 @@ export function get(key, projectDir = process.cwd()) {
 }
 
 /**
+ * Validate configuration value
+ */
+export function validateConfig(key, value) {
+  const validators = {
+    'editor': (v) => typeof v === 'string' && v.length > 0,
+    'quiet': (v) => typeof v === 'boolean',
+    'skipValidation': (v) => typeof v === 'boolean',
+    'qualityThreshold.specification': (v) => typeof v === 'number' && v >= 0 && v <= 100,
+    'qualityThreshold.plan': (v) => typeof v === 'number' && v >= 0 && v <= 100,
+    'qualityThreshold.implementation': (v) => typeof v === 'number' && v >= 0 && v <= 100,
+    'outputFormat': (v) => ['markdown', 'html', 'pdf'].includes(v),
+    'docsOutputDir': (v) => typeof v === 'string' && v.length > 0,
+    'pluginsDir': (v) => typeof v === 'string' && v.length > 0,
+    'agentsDir': (v) => typeof v === 'string' && v.length > 0,
+    'templatesDir': (v) => typeof v === 'string' && v.length > 0
+  };
+
+  const validator = validators[key];
+  if (!validator) {
+    // No specific validator - allow any value
+    return { valid: true };
+  }
+
+  const valid = validator(value);
+  if (!valid) {
+    const errorMessages = {
+      'editor': 'Editor must be a non-empty string',
+      'quiet': 'Quiet must be a boolean (true/false)',
+      'skipValidation': 'SkipValidation must be a boolean (true/false)',
+      'qualityThreshold.specification': 'Quality threshold must be a number between 0 and 100',
+      'qualityThreshold.plan': 'Quality threshold must be a number between 0 and 100',
+      'qualityThreshold.implementation': 'Quality threshold must be a number between 0 and 100',
+      'outputFormat': 'Output format must be one of: markdown, html, pdf',
+      'docsOutputDir': 'Docs output directory must be a non-empty string',
+      'pluginsDir': 'Plugins directory must be a non-empty string',
+      'agentsDir': 'Agents directory must be a non-empty string',
+      'templatesDir': 'Templates directory must be a non-empty string'
+    };
+
+    return {
+      valid: false,
+      error: errorMessages[key] || `Invalid value for ${key}`
+    };
+  }
+
+  return { valid: true };
+}
+
+/**
  * Set a config value (saves to project or global config)
  */
 export function set(key, value, options = {}) {
   const { global = false, projectDir = process.cwd() } = options;
+
+  // Validate the value
+  const validation = validateConfig(key, value);
+  if (!validation.valid) {
+    throw new Error(validation.error);
+  }
 
   // Determine which config file to update
   const configPath = global ? GLOBAL_CONFIG_FILE : join(projectDir, PROJECT_CONFIG_FILE);
@@ -182,10 +237,71 @@ export function unset(key, options = {}) {
 }
 
 /**
- * List all config values
+ * List all config values with sources
  */
 export function list(projectDir = process.cwd()) {
-  return loadConfig(projectDir);
+  const result = [];
+
+  // Get default values
+  const defaults = { ...DEFAULTS };
+  const globalConfig = existsSync(GLOBAL_CONFIG_FILE)
+    ? JSON.parse(readFileSync(GLOBAL_CONFIG_FILE, 'utf-8'))
+    : {};
+  const projectConfigPath = join(projectDir, PROJECT_CONFIG_FILE);
+  const projectConfig = existsSync(projectConfigPath)
+    ? JSON.parse(readFileSync(projectConfigPath, 'utf-8'))
+    : {};
+
+  // Flatten config and determine sources
+  const flattenConfig = (obj, prefix = '', source = 'default') => {
+    for (const [key, value] of Object.entries(obj)) {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        flattenConfig(value, fullKey, source);
+      } else {
+        // Determine actual source
+        let actualSource = 'default';
+
+        // Check env vars
+        const envKey = 'SPECKIT_' + fullKey.toUpperCase().replace(/\./g, '_');
+        if (process.env[envKey]) {
+          actualSource = 'env';
+        } else if (getNestedValue(projectConfig, fullKey) !== undefined) {
+          actualSource = 'project';
+        } else if (getNestedValue(globalConfig, fullKey) !== undefined) {
+          actualSource = 'global';
+        }
+
+        result.push({
+          key: fullKey,
+          value: getNestedValue(loadConfig(projectDir), fullKey),
+          source: actualSource
+        });
+      }
+    }
+  };
+
+  flattenConfig(loadConfig(projectDir));
+  return result;
+}
+
+/**
+ * Helper to get nested value
+ */
+function getNestedValue(obj, path) {
+  const keys = path.split('.');
+  let value = obj;
+
+  for (const k of keys) {
+    if (value && typeof value === 'object' && k in value) {
+      value = value[k];
+    } else {
+      return undefined;
+    }
+  }
+
+  return value;
 }
 
 /**

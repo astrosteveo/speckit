@@ -1,6 +1,6 @@
 {
   "name": "speckit",
-  "version": "1.0.0",
+  "version": "2.1.1",
   "displayName": "SpecKit",
   "description": "Test-driven specification-first development toolkit for Claude Code",
   "author": "astrosteveo",

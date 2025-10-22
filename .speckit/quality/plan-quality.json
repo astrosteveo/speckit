@@ -1,10 +1,18 @@
 {
-  "overall": 100,
-  "completeness": 100,
+  "overall": 67,
+  "completeness": 0,
   "actionability": 100,
   "feasibility": 100,
   "threshold": 85,
-  "passed": true,
-  "issues": [],
-  "recommendations": []
+  "passed": false,
+  "issues": [
+    "No architecture overview provided",
+    "No architecture components defined",
+    "No tasks defined"
+  ],
+  "recommendations": [
+    "Break down architecture into logical components",
+    "Break work into concrete, actionable tasks",
+    "Add timeline with effort estimates"
+  ]
 }

@@ -224,6 +224,70 @@ Dependencies: T010
 - Coverage ≥80%
 ```
 
+## Parallel Execution Planning
+
+**CRITICAL**: SpecKit can execute independent tasks in PARALLEL to dramatically reduce total implementation time.
+
+### Identifying Parallel Tasks
+
+Look for tasks that:
+- Don't modify the same files
+- Don't depend on each other's outputs
+- Can be tested independently
+
+### Example: Maximize Parallelization
+
+**Sequential (Bad)** - 10 hours total:
+```
+T001: Setup Database (2h) → Dependencies: None
+T002: Create API Routes (3h) → Dependencies: T001
+T003: Build Frontend (3h) → Dependencies: T002
+T004: Write Tests (2h) → Dependencies: T003
+```
+
+**Parallel (Good)** - 5 hours total:
+```
+Wave 1 (parallel - 3 hours):
+  T001: Setup Database (2h) → Dependencies: None
+  T002: Build Frontend Shell (3h) → Dependencies: None
+  T003: Write Test Framework (2h) → Dependencies: None
+
+Wave 2 (parallel - 2 hours):
+  T004: Create API Routes (2h) → Dependencies: T001
+  T005: Connect Frontend to API (2h) → Dependencies: T002, T004
+```
+
+**Time Savings**: 50%!
+
+### Dependency Best Practices
+
+1. **Always specify dependencies explicitly**
+   ```markdown
+   **Dependencies**: T001, T003
+   ```
+
+2. **Use "None" for independent tasks**
+   ```markdown
+   **Dependencies**: None
+   ```
+
+3. **Avoid creating artificial dependencies**
+   - Don't make T002 depend on T001 just because it comes after
+   - Only add dependency if there's a real technical requirement
+
+4. **Think in waves**
+   - Group independent tasks together
+   - Minimize the critical path
+
+### Quality Bonus
+
+Plans with good parallelization opportunities receive quality bonuses:
+- Parallelization score ≥70%: +15 points
+- Parallelization score ≥40%: +10 points
+- Any parallelization: +5 points
+
+The validator will calculate potential time savings and report them!
+
 ## Tools Available
 
 You have access to:

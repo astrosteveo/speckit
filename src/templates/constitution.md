@@ -15,36 +15,20 @@
 
 ## Priorities
 
-What this project optimizes for:
-
 {{#priorities}}
-- **{{name}}**: {{rationale}}
+- {{priority}}
 {{/priorities}}
 
-## Non-Negotiables
+{{CONSTRAINTS_SECTION}}
 
-{{#nonNegotiables}}
-- {{item}}
-{{/nonNegotiables}}
+## Development Methodology
 
-## Success Definition
+This project follows **Spec-Driven, Test-Driven Development**:
 
-This project succeeds when:
-
-{{#successCriteria}}
-- {{criterion}}
-{{/successCriteria}}
-
-## Decision Framework
-
-When making technical or product decisions, refer to these principles in order:
-
-1. Does it serve the core purpose?
-2. Does it align with our guiding principles?
-3. Does it respect our priorities?
-4. Does it violate any non-negotiables?
-
-If a decision passes all checks, it's likely the right call.
+1. **Specify**: Define what needs to be built (clear requirements)
+2. **Plan**: Break down into testable tasks
+3. **Implement**: Build with TDD (RED → GREEN → REFACTOR)
+4. **Validate**: Quality gates ensure we stay on track
 
 ---
 

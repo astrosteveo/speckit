@@ -5,7 +5,7 @@
  * Principle: Simple, inspectable, human-editable JSON
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync } from 'fs';
 import { join } from 'path';
 
 const STATE_FILE = 'state.json';
@@ -101,15 +101,22 @@ export function loadState(baseDir) {
 }
 
 /**
- * Save state to file
+ * Save state to file using atomic write pattern
  *
  * @param {string} baseDir - Base directory (.speckit/)
  * @param {object} state - State object to save
  */
 function saveState(baseDir, state) {
   const statePath = join(baseDir, STATE_FILE);
+  const tmpPath = join(baseDir, `${STATE_FILE}.tmp`);
+
   state.updatedAt = new Date().toISOString();
-  writeFileSync(statePath, JSON.stringify(state, null, 2), 'utf-8');
+
+  // Write to temporary file first
+  writeFileSync(tmpPath, JSON.stringify(state, null, 2), 'utf-8');
+
+  // Atomic rename (ensures no partial writes)
+  renameSync(tmpPath, statePath);
 }
 
 /**

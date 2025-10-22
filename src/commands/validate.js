@@ -4,10 +4,11 @@
  * Validate current phase quality
  */
 
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { colors, log } from '../core/cli.js';
+import { colors, log, Spinner } from '../core/cli.js';
 import { loadState, getCurrentPhase } from '../core/state.js';
+import { validateSpecification, validatePlan, validateImplementation } from '../core/quality.js';
 
 export async function validateCommand(args, flags) {
   const cwd = process.cwd();
@@ -22,7 +23,6 @@ export async function validateCommand(args, flags) {
 
   // Load state
   const state = loadState(speckitDir);
-  const currentPhase = getCurrentPhase(speckitDir);
 
   console.log('');
   console.log(colors.bright('═'.repeat(60)));
@@ -30,28 +30,60 @@ export async function validateCommand(args, flags) {
   console.log(colors.bright('═'.repeat(60)));
   console.log('');
 
-  // Determine what to validate
+  // Determine what to validate based on argument or current phase
+  const type = args[0]; // spec, plan, impl
   let qualityFile = null;
   let phaseName = null;
+  let artifactPath = null;
+  let validator = null;
 
-  if (state.phases.specify.status === 'completed') {
+  if (type === 'spec' || (!type && state.phases.specify.status === 'completed')) {
+    artifactPath = join(speckitDir, 'SPECIFICATION.md');
     qualityFile = join(speckitDir, 'quality/spec-quality.json');
     phaseName = 'Specification';
-  }
-
-  if (state.phases.plan.status === 'completed') {
+    validator = validateSpecification;
+  } else if (type === 'plan' || (!type && state.phases.plan.status === 'completed')) {
+    artifactPath = join(speckitDir, 'PLAN.md');
     qualityFile = join(speckitDir, 'quality/plan-quality.json');
     phaseName = 'Plan';
-  }
-
-  if (!qualityFile || !existsSync(qualityFile)) {
-    log.warning('No quality reports found yet');
-    log.info('Quality validation runs after specify and plan phases');
+    validator = validatePlan;
+  } else if (type === 'impl') {
+    qualityFile = join(speckitDir, 'quality/impl-quality.json');
+    phaseName = 'Implementation';
+    validator = validateImplementation;
+  } else {
+    log.warning('No completed phases to validate');
+    log.info('Complete specify or plan phase first, then run validation');
+    log.info('Or specify type: speckit validate [spec|plan|impl]');
     return { success: false };
   }
 
-  // Load quality report
-  const quality = JSON.parse(readFileSync(qualityFile, 'utf-8'));
+  // Run validation if artifact exists
+  let quality = null;
+
+  if (artifactPath && existsSync(artifactPath)) {
+    const spinner = new Spinner(`Validating ${phaseName}...`);
+    spinner.start();
+
+    try {
+      const artifact = readFileSync(artifactPath, 'utf-8');
+      quality = validator(artifact, speckitDir);
+
+      // Save quality report
+      writeFileSync(qualityFile, JSON.stringify(quality, null, 2), 'utf-8');
+
+      spinner.succeed(`${phaseName} validated`);
+    } catch (error) {
+      spinner.fail('Validation failed');
+      throw error;
+    }
+  } else if (existsSync(qualityFile)) {
+    // Load existing quality report
+    quality = JSON.parse(readFileSync(qualityFile, 'utf-8'));
+  } else {
+    log.error(`No ${phaseName.toLowerCase()} found to validate`);
+    return { success: false };
+  }
 
   console.log(colors.bright(`${phaseName} Quality Report`));
   console.log('');
@@ -110,5 +142,10 @@ export async function validateCommand(args, flags) {
 
   console.log('');
 
-  return { success: true, quality };
+  // Return appropriate exit code
+  return {
+    success: quality.passed,
+    quality,
+    exitCode: quality.passed ? 0 : 1
+  };
 }

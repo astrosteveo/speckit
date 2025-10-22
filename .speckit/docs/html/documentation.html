@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation</title>
+  
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    color: #333;
+  }
+  h1 { border-bottom: 2px solid #eee; padding-bottom: 0.3rem; }
+  h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3rem; margin-top: 2rem; }
+  h3 { margin-top: 1.5rem; }
+  code {
+    background: #f6f8fa;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 85%;
+  }
+  pre {
+    background: #f6f8fa;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+  }
+  ul { padding-left: 2rem; }
+  li { margin: 0.5rem 0; }
+  a { color: #0366d6; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+
+</head>
+<body>
+  <h1>Documentation</h1><h2>Table of Contents</h2><ul><li><a href="#requirements">Requirements</a></li>
+<li><a href="#api-reference">API Reference</a></li>
+</ul>
+<h2>Requirements</h2><h3>Functional Requirements</h3><p>#### FR001: Global NPM Installation and Package Distribution</p><p><strong>Description</strong>: Enable installation of SpecKit as a global npm package that can be invoked from any directory using the <code>speckit</code> command. The package must include proper bin configuration, entry point setup, file permissions for executables, and all necessary files bundled for distribution. Installation must complete in under 30 seconds on a standard internet connection with no errors or warnings.</p><p><strong>Priority</strong>: Critical</p><p><strong>Testability</strong>:
+<ul><li>Verify <code>npm install -g speckit</code> completes successfully in <30 seconds</li>
+<li>Verify <code>speckit --version</code> returns correct version number</li>
+<li>Verify <code>speckit --help</code> displays usage information</li>
+<li>Verify installation works on Linux, macOS, and Windows</li>
+<li>Verify no npm warnings or errors during installation</li>
+<li>Verify uninstallation with <code>npm uninstall -g speckit</code> removes all files</li>
+</ul>
+<strong>Details</strong>:
+<ul><li>Add <code>bin</code> field to package.json pointing to CLI entry point</li>
+<li>Create executable CLI entry script with proper shebang (<code>#!/usr/bin/env node</code>)</li>
+<li>Set executable permissions on CLI files</li>
+<li>Include all necessary files in npm package (use <code>files</code> field in package.json)</li>
+<li>Test installation on all major platforms (Linux, macOS, Windows)</li>
+<li>Provide both global (<code>-g</code>) and npx usage patterns</li>
+<li>Ensure zero runtime dependencies (dev dependencies allowed for testing)</li>
+</ul>
+---</p><p>#### FR002: Interactive Project Initialization with Smart Detection</p><p><strong>Description</strong>: Implement <code>speckit init</code> command that initializes SpecKit in any directory by creating the <code>.speckit/</code> directory structure, generating default configuration files (state.json, CONSTITUTION.md template), detecting existing project metadata (package.json, git repository), and providing interactive prompts for project details with sensible defaults. The command must complete initialization in under 5 seconds and detect if SpecKit is already initialized to prevent accidental overwrites.</p><p><strong>Priority</strong>: Critical</p><p><strong>Testability</strong>:
+<ul><li>Verify <code>speckit init</code> creates <code>.speckit/</code> directory structure</li>
+<li>Verify <code>state.json</code> is created with correct schema and initial values</li>
+<li>Verify constitution template is copied to <code>.speckit/CONSTITUTION.md</code></li>
+<li>Verify initialization completes in <5 seconds</li>
+<li>Verify command detects existing <code>.speckit/</code> and prompts before overwriting</li>
+<li>Verify project name is auto-detected from package.json or directory name</li>
+<li>Verify git repository is detected and recorded in state</li>
+<li>Verify interactive prompts work with default values when no input provided</li>
+</ul>
+<strong>Details</strong>:
+<ul><li>Create <code>.speckit/</code> directory with subdirectories: <code>quality/</code>, <code>docs/</code>, <code>templates/</code></li>
+<li>Initialize <code>state.json</code> with workflow metadata structure</li>
+<li>Copy constitution template with placeholders for project name and description</li>
+<li>Auto-detect project name from package.json or current directory name</li>
+<li>Auto-detect git repository URL if present</li>
+<li>Prompt user for project description, version, and other metadata</li>
+<li>Provide sensible defaults for all prompts (allow Enter to accept)</li>
+<li>Validate user inputs (non-empty project name, valid version format)</li>
+<li>Display success message with next steps after initialization</li>
+</ul>
+---</p><p>#### FR003: Workflow Status Dashboard with Real-Time Monitoring</p><p><strong>Description</strong>: Implement <code>speckit status</code> command that displays a comprehensive dashboard showing current workflow phase, completion status of each phase (constitute, specify, plan, implement), quality scores for completed phases with color-coded indicators, recent activity log with timestamps, and next recommended actions. The dashboard must refresh in under 1 second and display data in a clear, color-coded, table format with visual indicators for pass/fail status.</p><p><strong>Priority</strong>: High</p><p><strong>Testability</strong>:
+<ul><li>Verify <code>speckit status</code> displays current phase correctly</li>
+<li>Verify all four phases are shown with correct status (pending/in-progress/completed)</li>
+<li>Verify quality scores are displayed for completed phases</li>
+<li>Verify color coding: green for passed (85%+), yellow for warning (70-84%), red for failed (<70%)</li>
+<li>Verify command executes in <1 second</li>
+<li>Verify error handling when <code>.speckit/</code> directory not found</li>
+<li>Verify status includes timestamp of last update</li>
+<li>Verify suggested next actions are displayed based on current phase</li>
+</ul>
+<strong>Details</strong>:
+<ul><li>Read state from <code>.speckit/state.json</code></li>
+<li>Display workflow ID, project name, version, and current phase</li>
+<li>Show each phase with status icon: ⏸ (pending), ⏩ (in-progress), ✅ (completed)</li>
+<li>Display quality scores from <code>.speckit/quality/*.json</code> files</li>
+<li>Use color codes: green (scores 85%+), yellow (70-84%), red (<70%)</li>
+<li>Show last activity timestamp in human-readable format ("2 hours ago")</li>
+<li>Display next recommended action based on workflow state</li>
+<li>Provide <code>--json</code> flag for machine-readable output</li>
+</ul>
+---</p><p>#### FR004: Automated Documentation Generation from Specs and Code</p><p><strong>Description</strong>: Implement automatic documentation generation that reads specifications from <code>.speckit/SPECIFICATION.md</code>, extracts functional requirements, user stories, and acceptance criteria, generates API documentation from JSDoc comments in code, creates user guides from specs with examples, and outputs documentation in Markdown, HTML, and PDF formats. Documentation generation must complete in under 10 seconds for projects with <100 files and <10000 lines of code.</p><p><strong>Priority</strong>: High</p><p><strong>Testability</strong>:
+<ul><li>Verify <code>speckit docs generate</code> creates documentation files in <code>.speckit/docs/</code></li>
+<li>Verify Markdown output contains all functional requirements from spec</li>
+<li>Verify HTML output is valid and renders correctly in browsers</li>
+<li>Verify PDF output is generated and readable</li>
+<li>Verify API docs are extracted from JSDoc comments in code</li>
+<li>Verify generation completes in <10 seconds for projects <100 files</li>
+<li>Verify incremental updates only regenerate changed sections</li>
+<li>Verify documentation includes table of contents and navigation links</li>
+</ul>
+<strong>Details</strong>:
+<ul><li>Parse <code>.speckit/SPECIFICATION.md</code> to extract requirements and stories</li>
+<li>Scan source files for JSDoc comments and extract API signatures</li>
+<li>Generate documentation in multiple formats: Markdown (default), HTML, PDF</li>
+<li>Create separate documentation sections: Requirements, API Reference, User Guide</li>
+<li>Include table of contents with anchor links for navigation</li>
+<li>Support incremental updates (only regenerate changed sections)</li>
+<li>Provide <code>speckit docs generate --format=<format></code> to specify output format</li>
+<li>Validate that generated docs match specification content</li>
+<li>Include examples and code snippets where relevant</li>
+</ul>
+---</p><p>#### FR005: Phase Execution Commands with Progress Tracking</p><p><strong>Description</strong>: Implement commands for executing each workflow phase (<code>speckit constitute</code>, <code>speckit specify</code>, <code>speckit plan</code>, <code>speckit implement</code>) with real-time progress indicators showing current step and estimated time remaining, validation of prerequisites before phase execution, automatic state updates in state.json, quality validation after phase completion with detailed reports, and error recovery mechanisms with helpful messages. Each command must update state atomically and handle interruptions gracefully.</p><p><strong>Priority</strong>: Critical</p><p><strong>Testability</strong>:
+<ul><li>Verify <code>speckit constitute</code> executes constitution phase and updates state</li>
+<li>Verify <code>speckit specify</code> validates constitution exists before running</li>
+<li>Verify <code>speckit plan</code> validates specification exists before running</li>
+<li>Verify <code>speckit implement</code> validates plan exists before running</li>
+<li>Verify progress indicators display during long-running operations</li>
+<li>Verify state.json is updated atomically after phase completion</li>
+<li>Verify quality validation runs automatically after each phase</li>
+<li>Verify error messages include recovery steps when validation fails</li>
+<li>Verify phase can be resumed after interruption</li>
+</ul>
+<strong>Details</strong>:
+<ul><li>Implement <code>speckit constitute</code> to guide creation of CONSTITUTION.md</li>
+<li>Implement <code>speckit specify</code> to guide creation of SPECIFICATION.md</li>
+<li>Implement <code>speckit plan</code> to guide creation of technical plan</li>
+<li>Implement <code>speckit implement</code> to track implementation progress</li>
+<li>Validate prerequisites before each phase (previous phases completed)</li>
+<li>Display progress bar or spinner for long-running operations</li>
+<li>Update state.json phase status: pending → in-progress → completed</li>
+<li>Run quality validation automatically after phase completion</li>
+<li>Save quality reports to <code>.speckit/quality/{phase}-quality.json</code></li>
+<li>Provide clear error messages with recovery instructions on validation failure</li>
+<li>Allow <code>--skip-validation</code> flag for advanced users (with warning)</li>
+</ul>
+---</p><p>#### FR006: Quality Validation with Detailed Reporting and Recommendations</p><p><strong>Description</strong>: Implement comprehensive quality validation that checks specifications against completeness (85%), clarity (90%), and testability (80%) thresholds, validates plans against actionability and feasibility metrics, validates implementations against test coverage (80%+), zero lint errors, and passing tests, generates detailed quality reports with scores, issues, and actionable recommendations, and prevents progression to next phase if quality thresholds are not met. Validation must execute in under 5 seconds for documents <5000 lines.</p><p><strong>Priority</strong>: Critical</p><p><strong>Testability</strong>:
+<ul><li>Verify specification validation checks for minimum 5 functional requirements</li>
+<li>Verify specification validation checks for minimum 2 non-functional requirements</li>
+<li>Verify specification validation checks for minimum 3 user stories with acceptance criteria</li>
+<li>Verify plan validation checks for architecture components and tasks</li>
+<li>Verify implementation validation requires tests written and passing</li>
+<li>Verify implementation validation requires test coverage 80%+</li>
+<li>Verify validation reports include scores, issues, and recommendations</li>
+<li>Verify validation completes in <5 seconds for documents <5000 lines</li>
+<li>Verify validation prevents phase progression when thresholds not met</li>
+</ul>
+<strong>Details</strong>:
+<ul><li>Use existing quality validation from <code>src/core/quality.js</code></li>
+<li>Validate specifications: completeness (85%), clarity (90%), testability (80%)</li>
+<li>Validate plans: completeness (85%), actionability (85%), feasibility (85%)</li>
+<li>Validate implementations: tests written, tests passing, coverage 80%+, zero lint errors</li>
+<li>Generate detailed JSON reports with scores, issues, and recommendations</li>
+<li>Save reports to <code>.speckit/quality/{type}-quality.json</code></li>
+<li>Display quality summary in terminal with color-coded scores</li>
+<li>Block progression to next phase if validation fails</li>
+<li>Provide <code>speckit validate <type></code> command for manual validation</li>
+<li>Support <code>--fix</code> flag to apply automated fixes where possible</li>
+</ul>
+---</p><p>#### FR007: Claude Agent SDK Integration with Proper Lifecycle Management</p><p><strong>Description</strong>: Integrate with Claude Agent SDK following best practices including proper agent lifecycle management (initialize, execute, cleanup), native tool usage patterns with error handling, state persistence via SDK mechanisms, proper error handling with user-friendly messages, and adherence to SDK documentation and examples. All SDK interactions must be wrapped in try-catch blocks with fallback behaviors.</p><p><strong>Priority</strong>: High</p><p><strong>Testability</strong>:
+<ul><li>Verify agent initialization follows SDK patterns with proper configuration</li>
+<li>Verify tool invocations use SDK-provided methods and error handling</li>
+<li>Verify state persistence uses SDK mechanisms not custom file I/O</li>
+<li>Verify errors from SDK are caught and translated to user-friendly messages</li>
+<li>Verify SDK version compatibility is checked at startup</li>
+<li>Verify cleanup routines execute on exit or error</li>
+<li>Verify no deprecated SDK methods are used</li>
+<li>Verify integration tests pass with actual SDK</li>
+</ul>
+<strong>Details</strong>:
+<ul><li>Initialize agents using SDK agent factory patterns</li>
+<li>Register tools using SDK tool registration APIs</li>
+<li>Use SDK state management instead of custom state.json where applicable</li>
+<li>Implement proper error handling for all SDK calls (try-catch with logging)</li>
+<li>Translate SDK errors into user-friendly messages with recovery steps</li>
+<li>Check SDK version compatibility at startup and warn on mismatch</li>
+<li>Implement cleanup handlers for graceful shutdown</li>
+<li>Follow SDK documentation for all integration points</li>
+<li>Add integration tests using SDK testing utilities</li>
+<li>Document SDK integration patterns for extension developers</li>
+</ul>
+---</p><p>#### FR008: Enhanced User Experience with Clear Feedback and Helpful Errors</p><p><strong>Description</strong>: Provide comprehensive user experience enhancements including colored terminal output with consistent formatting, progress indicators for operations taking >2 seconds (spinners or progress bars), helpful error messages with recovery steps and documentation links, confirmation prompts for destructive actions with clear defaults, interactive wizards for complex workflows with step-by-step guidance, and success messages with next steps. All output must be accessible and work in environments without color support.</p><p><strong>Priority</strong>: High</p><p><strong>Testability</strong>:
+<ul><li>Verify terminal output uses colors appropriately (green=success, yellow=warning, red=error)</li>
+<li>Verify progress indicators appear for operations >2 seconds</li>
+<li>Verify error messages include specific problem description and recovery steps</li>
+<li>Verify destructive actions prompt for confirmation with clear default (N)</li>
+<li>Verify all prompts have sensible defaults and accept Enter key</li>
+<li>Verify output is readable when colors are disabled (NO_COLOR environment variable)</li>
+<li>Verify success messages include suggested next steps</li>
+<li>Verify help text is comprehensive and includes examples</li>
+</ul>
+<strong>Details</strong>:
+<ul><li>Use ANSI color codes for terminal output (green, yellow, red, blue)</li>
+<li>Detect NO_COLOR environment variable and disable colors when set</li>
+<li>Display spinner for operations taking >2 seconds (e.g., "Validating...")</li>
+<li>Display progress bar for long operations with known duration</li>
+<li>Format error messages: "[ERROR] {problem}. Try: {recovery steps}. Docs: {link}"</li>
+<li>Prompt for confirmation on destructive actions (e.g., overwrite, delete)</li>
+<li>Provide interactive wizards for init and configure commands</li>
+<li>Include examples in help text for all commands</li>
+<li>Show success messages with clear next steps ("Done! Run 'speckit status' to see progress")</li>
+<li>Support <code>--quiet</code> flag to suppress non-error output</li>
+</ul>
+---</p><p>#### FR009: Plugin Architecture for Custom Agents, Validators, and Templates</p><p><strong>Description</strong>: Implement extensible plugin system that allows loading custom agents from <code>.speckit/agents/</code> directory, loading custom quality validators from <code>.speckit/validators/</code>, loading custom templates from <code>.speckit/templates/</code>, plugin discovery and registration at startup, validation of plugin interfaces and error handling for malformed plugins, and documentation and examples for creating custom plugins. Plugin loading must complete in <2 seconds for <20 plugins.</p><p><strong>Priority</strong>: Medium</p><p><strong>Testability</strong>:
+<ul><li>Verify plugins are discovered from <code>.speckit/agents/</code> directory</li>
+<li>Verify custom validators are loaded from <code>.speckit/validators/</code></li>
+<li>Verify custom templates are loaded from <code>.speckit/templates/</code></li>
+<li>Verify plugin loading completes in <2 seconds for <20 plugins</li>
+<li>Verify invalid plugins are rejected with clear error messages</li>
+<li>Verify plugins can extend built-in agents without breaking core functionality</li>
+<li>Verify plugin API is documented with examples</li>
+<li>Verify plugin registry shows loaded plugins with <code>speckit plugins list</code></li>
+</ul>
+<strong>Details</strong>:
+<ul><li>Define plugin interface specification (required exports, methods, metadata)</li>
+<li>Scan <code>.speckit/agents/</code> directory for custom agent definitions</li>
+<li>Scan <code>.speckit/validators/</code> directory for custom quality validators</li>
+<li>Scan <code>.speckit/templates/</code> directory for custom document templates</li>
+<li>Validate plugin structure and interfaces at load time</li>
+<li>Register plugins in a central registry accessible to core system</li>
+<li>Provide plugin lifecycle hooks: onLoad, onUnload, onError</li>
+<li>Handle plugin errors gracefully without crashing main process</li>
+<li>Implement <code>speckit plugins list</code> to show loaded plugins</li>
+<li>Implement <code>speckit plugins create <name></code> to scaffold new plugin</li>
+<li>Document plugin API with examples in <code>.speckit/docs/plugins.md</code></li>
+<li>Provide example plugins in repository for reference</li>
+</ul>
+---</p><p>#### FR010: Configuration Management with Environment-Specific Settings</p><p><strong>Description</strong>: Implement configuration system that supports global configuration in <code>~/.speckit/config.json</code>, project-specific configuration in <code>.speckit/config.json</code>, environment variable overrides (SPECKIT_* prefix), configuration validation with schema checking, and commands for viewing and updating configuration (<code>speckit config get/set</code>). Configuration changes must be validated before saving and invalid configurations must be rejected with helpful error messages.</p><p><strong>Priority</strong>: Medium</p><p><strong>Testability</strong>:
+<ul><li>Verify global config is read from <code>~/.speckit/config.json</code></li>
+<li>Verify project config is read from <code>.speckit/config.json</code></li>
+<li>Verify environment variables override config values (SPECKIT_* prefix)</li>
+<li>Verify <code>speckit config get <key></code> returns correct value</li>
+<li>Verify <code>speckit config set <key> <value></code> updates config file</li>
+<li>Verify invalid config values are rejected with validation error</li>
+<li>Verify config merging follows precedence: env vars > project > global > defaults</li>
+<li>Verify config schema is documented and validated</li>
+</ul>
+<strong>Details</strong>:
+<ul><li>Define configuration schema with validation rules</li>
+<li>Support hierarchical configuration: defaults → global → project → environment</li>
+<li>Read global config from <code>~/.speckit/config.json</code> if exists</li>
+<li>Read project config from <code>.speckit/config.json</code> if exists</li>
+<li>Override with environment variables matching pattern <code>SPECKIT_*</code></li>
+<li>Implement <code>speckit config get <key></code> to display configuration value</li>
+<li>Implement <code>speckit config set <key> <value></code> to update configuration</li>
+<li>Implement <code>speckit config list</code> to show all active configuration</li>
+<li>Validate configuration values against schema before saving</li>
+<li>Provide helpful error messages for invalid configuration</li>
+<li>Document all available configuration options with examples</li>
+<li>Support nested configuration keys using dot notation (e.g., <code>quality.threshold</code>)</li>
+</ul>
+---</p><h3>Non-Functional Requirements</h3><p>#### NFR001: Performance - Fast Execution and Minimal Latency</p><p><strong>Description</strong>: All SpecKit operations must execute within defined time bounds to ensure responsive user experience. Installation must complete in under 30 seconds, initialization in under 5 seconds, status checks in under 1 second, documentation generation in under 10 seconds for projects <100 files, quality validation in under 5 seconds for documents <5000 lines, and plugin loading in under 2 seconds for <20 plugins. Performance must be measured and validated in CI pipeline.</p><p><strong>Metric</strong>: Execution time in seconds measured using performance.now() before and after each operation</p><p><strong>Target</strong>:
+<ul><li>Installation: <30 seconds</li>
+<li>Initialization: <5 seconds</li>
+<li>Status check: <1 second</li>
+<li>Documentation generation: <10 seconds (projects <100 files)</li>
+<li>Quality validation: <5 seconds (documents <5000 lines)</li>
+<li>Plugin loading: <2 seconds (<20 plugins)</li>
+</ul>
+<strong>Rationale</strong>: Developers expect fast, responsive tools. Slow operations lead to frustration and abandonment. Fast execution times enable rapid iteration and workflow efficiency.</p><p>---</p><p>#### NFR002: Reliability - Zero Data Loss and Graceful Error Recovery</p><p><strong>Description</strong>: SpecKit must handle errors gracefully without data loss or corruption of state files. All state mutations must be atomic (write to temp file, then rename), interrupted operations must be resumable from last checkpoint, error messages must be actionable with recovery steps, and the system must never leave the project in an inconsistent state. Reliability must be tested through fault injection and chaos testing.</p><p><strong>Metric</strong>: Number of error scenarios with successful recovery measured through fault injection testing</p><p><strong>Target</strong>:
+<ul><li>100% of state mutations are atomic (no partial writes)</li>
+<li>100% of interrupted operations can be resumed</li>
+<li>0 instances of state corruption in fault injection tests</li>
+<li>95%+ of errors include actionable recovery steps</li>
+</ul>
+<strong>Rationale</strong>: Data loss destroys trust and productivity. State corruption can break entire projects. Graceful error handling ensures developers can recover from failures without losing work.</p><p>---</p><p>#### NFR003: Maintainability - Test Coverage and Code Quality</p><p><strong>Description</strong>: All code must maintain high test coverage and quality standards. Test coverage must be 80% or higher for all new code, all modules must have unit tests with isolated dependencies, integration tests must cover critical user workflows end-to-end, linting must pass with zero errors or warnings, and code must follow consistent style guidelines enforced by automated tools.</p><p><strong>Metric</strong>: Test coverage percentage measured by Vitest coverage reporter, lint error count from ESLint</p><p><strong>Target</strong>:
+<ul><li>Test coverage: 80%+ (measured by Vitest)</li>
+<li>Unit test coverage: 85%+ for core modules</li>
+<li>Integration test coverage: 100% of critical user workflows</li>
+<li>Lint errors: 0 (measured by ESLint)</li>
+<li>Code complexity: Cyclomatic complexity <10 per function</li>
+</ul>
+<strong>Rationale</strong>: High test coverage prevents regressions and ensures reliability. Lint-free code is easier to maintain and has fewer bugs. Consistent style improves readability and collaboration.</p><p>---</p><p>#### NFR004: Compatibility - Cross-Platform and Node Version Support</p><p><strong>Description</strong>: SpecKit must work consistently across all major platforms (Linux, macOS, Windows) and Node.js versions (18.x, 20.x, 22.x LTS). All file paths must use platform-independent path APIs, all shell commands must have platform-specific implementations or fallbacks, and all features must be tested on each supported platform and Node version in CI pipeline.</p><p><strong>Metric</strong>: Platform compatibility matrix showing pass/fail status for each platform and Node version combination</p><p><strong>Target</strong>:
+<ul><li>100% feature parity across Linux, macOS, Windows</li>
+<li>100% test pass rate on Node.js 18.x, 20.x, 22.x</li>
+<li>0 platform-specific bugs in production</li>
+<li>CI pipeline validates all platforms and Node versions</li>
+</ul>
+<strong>Rationale</strong>: Developers use diverse environments. Platform-specific bugs create friction and limit adoption. Cross-platform support ensures SpecKit works reliably for all users.</p><p>---</p><p>#### NFR005: Security - Dependency Safety and Input Validation</p><p><strong>Description</strong>: SpecKit must have zero runtime dependencies to minimize supply chain attack surface, all user inputs must be validated and sanitized before processing, file operations must validate paths to prevent directory traversal attacks, and all dependencies (dev only) must be audited regularly for known vulnerabilities using npm audit.</p><p><strong>Metric</strong>: Number of runtime dependencies (must be 0), number of high/critical vulnerabilities in npm audit</p><p><strong>Target</strong>:
+<ul><li>Runtime dependencies: 0</li>
+<li>High/critical npm audit vulnerabilities: 0</li>
+<li>Input validation coverage: 100% of user inputs validated</li>
+<li>Path traversal protection: 100% of file operations validated</li>
+</ul>
+<strong>Rationale</strong>: Dependencies introduce security risks and maintenance burden. Zero runtime dependencies eliminates supply chain attack vectors. Input validation prevents injection attacks and malicious inputs.</p><p>---</p><h2>API Reference</h2><h3>parseArgs(argv)</h3><p>CLI Argument Parser Parse command-line arguments into structured format</p><h3>registerCommand(name, handler, options = {})</h3><p>CLI Command Router Route parsed commands to appropriate handlers</p><h3>registerCommand(name, handler, options = {})</h3><p>Register a command handler</p><h3>routeCommand(parsed)</h3><p>Route command to handler</p><h3>getCommands()</h3><p>Get all registered commands</p><h3>hasCommand(name)</h3><p>Check if command exists</p><h3>configCommand(args, flags)</h3><p>Config Command Get or set configuration values</p><h3>constituteCommand(args, flags)</h3><p>Constitute Command Run the constitute phase - define project principles interactively</p><h3>docsCommand(args, flags)</h3><p>Docs Command Generate documentation from specification and source code</p><h3>initCommand(args, flags)</h3><p>Init Command Initialize a new SpecKit workflow, optionally creating a new project directory</p><h3>specifyCommand(args, flags)</h3><p>Specify Command Run the specify phase - create detailed requirements using Requirements Analyst</p><h3>statusCommand(args, flags)</h3><p>Status Command Show workflow progress and status</p><h3>validateCommand(args, flags)</h3><p>Validate Command Validate current phase quality</p><h3>prompt(question, defaultValue = '')</h3><p>Terminal UI Library Colors, spinners, progress bars, prompts, and tables Zero dependencies - uses ANSI escape codes and Node.js built-ins</p><h3>prompt(question, defaultValue = '')</h3><p>Color text</p><h3>prompt(question, defaultValue = '')</h3><p>Spinner for long-running operations</p><h3>prompt(question, defaultValue = '')</h3><p>Progress bar</p><h3>prompt(question, defaultValue = '')</h3><p>Interactive prompt</p><h3>confirm(question, defaultValue = false)</h3><p>Confirm (yes/no) prompt</p><h3>select(question, options)</h3><p>Select from options</p><h3>table(data, options = {})</h3><p>Display table</p><h3>box(text, title = '')</h3><p>Box around text</p><h3>loadConfig(projectDir = process.cwd()</h3><p>Configuration Management Hierarchical configuration: env vars → project → global → defaults Zero dependencies - uses Node.js built-ins</p><h3>loadConfig(projectDir = process.cwd()</h3><p>Load configuration with hierarchy</p><h3>get(key, projectDir = process.cwd()</h3><p>Get a config value by key (supports nested keys with dot notation)</p><h3>set(key, value, options = {})</h3><p>Set a config value (saves to project or global config)</p><h3>unset(key, options = {})</h3><p>Delete a config value</p><h3>list(projectDir = process.cwd()</h3><p>List all config values</p><h3>reset(options = {})</h3><p>Reset config to defaults</p><h3>initGlobalConfig()</h3><p>Initialize global config directory</p><h3>parseSpecification(content)</h3><p>Documentation Generator Extracts requirements from SPECIFICATION.md, parses JSDoc from source code, generates documentation in Markdown and HTML formats Zero dependencies - uses only Node.js built-ins</p><h3>parseSpecification(content)</h3><p>Parse SPECIFICATION.md to extract requirements</p><p><strong>Parameters:</strong></p><ul><li><code>content</code> (string): Specification file content</li>
+</ul>
+<strong>Returns:</strong> Object - Parsed requirements</p><h3>parseJSDoc(source)</h3><p>Parse JSDoc comments from source code</p><p><strong>Parameters:</strong></p><ul><li><code>source</code> (string): Source code content</li>
+</ul>
+<strong>Returns:</strong> Array - Array of parsed JSDoc blocks</p><h3>generateMarkdown(data)</h3><p>Scan directory recursively for JavaScript files</p><p><strong>Parameters:</strong></p><ul><li><code>dir</code> (string): Directory to scan</li>
+<li><code>fileList</code> (Array): Accumulated file list</li>
+</ul>
+<strong>Returns:</strong> Array - List of JS file paths</p><h3>generateMarkdown(data)</h3><p>Generate markdown documentation from parsed data</p><p><strong>Parameters:</strong></p><ul><li><code>data</code> (Object): Parsed requirements and API data</li>
+</ul>
+<strong>Returns:</strong> string - Markdown content</p><h3>convertToHTML(markdown)</h3><p>Convert Markdown to HTML</p><p><strong>Parameters:</strong></p><ul><li><code>markdown</code> (string): Markdown content</li>
+</ul>
+<strong>Returns:</strong> string - HTML content with styling</p><h3>generateDocs(options)</h3><p>Generate documentation from project</p><p><strong>Parameters:</strong></p><ul><li><code>options</code> (Object): Generation options</li>
+<li><code>options</code> (string): .projectPath - Path to project root</li>
+<li><code>options</code> (Array<string>): .formats - Formats to generate (markdown, html)</li>
+<li><code>options</code> (string): .outputDir - Output directory (default: .speckit/docs)</li>
+<li><code>options</code> (boolean): .incremental - Enable incremental updates</li>
+</ul>
+<strong>Returns:</strong> Promise<Object> - Result object with success status and file list</p><h3>validateSpecification(spec, options = {})</h3><p>Quality Validation for SpecKit Validates specifications, plans, and implementations against quality thresholds Principle: Quality is built-in, not bolted-on</p><h3>validateSpecification(spec, options = {})</h3><p>Validate a specification</p><p><strong>Parameters:</strong></p><ul><li><code>spec</code> (object): Specification object</li>
+<li><code>options</code> (object): Validation options</li>
+</ul>
+<strong>Returns:</strong> object - Quality report</p><h3>validatePlan(plan, options = {})</h3><p>Validate a technical plan</p><p><strong>Parameters:</strong></p><ul><li><code>plan</code> (object): Plan object</li>
+<li><code>options</code> (object): Validation options</li>
+</ul>
+<strong>Returns:</strong> object - Quality report</p><h3>validateImplementation(implementation, options = {})</h3><p>Validate implementation quality</p><p><strong>Parameters:</strong></p><ul><li><code>implementation</code> (object): Implementation metrics</li>
+<li><code>options</code> (object): Validation options</li>
+</ul>
+<strong>Returns:</strong> object - Quality report</p><h3>initWorkflow(baseDir, workflowId, projectName)</h3><p>State Management for SpecKit Manages workflow state in .speckit/state.json Principle: Simple, inspectable, human-editable JSON</p><h3>initWorkflow(baseDir, workflowId, projectName)</h3><p>Initialize a new workflow</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>workflowId</code> (string): Unique workflow identifier (YYYY-MM-DD-slug)</li>
+<li><code>projectName</code> (string): Human-readable project name</li>
+</ul>
+<strong>Returns:</strong> object - Initial state object</p><h3>loadState(baseDir)</h3><p>Load existing workflow state</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+</ul>
+<strong>Returns:</strong> object - State object</p><h3>updatePhase(baseDir, phaseName, status, quality = null)</h3><p>Save state to file</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>state</code> (object): State object to save</li>
+</ul>
+<h3>updatePhase(baseDir, phaseName, status, quality = null)</h3><p>Update phase status</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>phaseName</code> (string): Phase to update</li>
+<li><code>status</code> (string): New status (pending/in_progress/completed)</li>
+</ul>
+<strong>Returns:</strong> object - Updated state</p><h3>getCurrentPhase(baseDir)</h3><p>Get current phase name</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+</ul>
+<strong>Returns:</strong> string - Current phase name</p><h3>getProgress(baseDir)</h3><p>Calculate workflow progress percentage</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+</ul>
+<strong>Returns:</strong> number - Progress percentage (0-100)</p><h3>isComplete(baseDir)</h3><p>Check if workflow is complete</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+</ul>
+<strong>Returns:</strong> boolean - True if all phases completed</p><h3>resetWorkflow(baseDir)</h3><p>Reset workflow to initial state</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+</ul>
+<strong>Returns:</strong> object - Reset state</p><h3>executeConstitutePhase(baseDir, projectName, responses)</h3><p>Constitute Phase Orchestrator Guides interactive conversation to establish project principles</p><h3>executeConstitutePhase(baseDir, projectName, responses)</h3><p>Execute the constitute phase This is an interactive phase - no agent needed, just structured conversation</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>projectName</code> (string): Project name</li>
+<li><code>responses</code> (object): User responses to constitution questions</li>
+</ul>
+<strong>Returns:</strong> object - Constitution data</p><h3>getConstituteQuestions()</h3><p>Simple template renderer (Mustache-like)</p><p><strong>Parameters:</strong></p><ul><li><code>template</code> (string): Template string</li>
+<li><code>data</code> (object): Data to fill template</li>
+</ul>
+<strong>Returns:</strong> string - Rendered template</p><h3>getConstituteQuestions()</h3><p>Get constitution questions for user</p><p><strong>Returns:</strong> Array - Array of question objects</p><h3>executeImplementPhase(baseDir, plan, currentTaskId = null)</h3><p>Implement Phase Orchestrator Launches Implementation Engineer agent for each task</p><h3>executeImplementPhase(baseDir, plan, currentTaskId = null)</h3><p>Execute the implement phase This launches the Implementation Engineer agent for each task</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>plan</code> (object): Approved technical plan</li>
+<li><code>currentTaskId</code> (string): Task ID to implement (null for next task)</li>
+</ul>
+<strong>Returns:</strong> Promise<object> - Implementation result</p><h3>getNextTask(plan, state)</h3><p>Get next task to implement</p><p><strong>Parameters:</strong></p><ul><li><code>plan</code> (object): Technical plan</li>
+<li><code>state</code> (object): Workflow state</li>
+</ul>
+<strong>Returns:</strong> object|null - Next task or null if all complete</p><h3>validateAndSaveImplementation(baseDir, taskId, implementation)</h3><p>Validate and save implementation Called by the agent to validate and save implementation results</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>taskId</code> (string): Task ID</li>
+<li><code>implementation</code> (object): Implementation metrics</li>
+</ul>
+<strong>Returns:</strong> object - Quality report</p><h3>calculateImplementProgress(plan, state)</h3><p>Calculate implementation progress</p><p><strong>Parameters:</strong></p><ul><li><code>plan</code> (object): Technical plan</li>
+<li><code>state</code> (object): Workflow state</li>
+</ul>
+<strong>Returns:</strong> object - Progress data</p><h3>updateTaskStatus(baseDir, state, taskId, status)</h3><p>Update task status in state</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>state</code> (object): Workflow state</li>
+<li><code>taskId</code> (string): Task ID</li>
+<li><code>status</code> (string): Status (pending/in_progress/completed)</li>
+</ul>
+<h3>executePlanPhase(baseDir, specification)</h3><p>Plan Phase Orchestrator Launches Technical Architect agent to create implementation plan</p><h3>executePlanPhase(baseDir, specification)</h3><p>Execute the plan phase This launches the Technical Architect agent</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>specification</code> (object): Approved specification</li>
+</ul>
+<strong>Returns:</strong> Promise<object> - Plan data and quality report</p><h3>validateAndSavePlan(baseDir, plan)</h3><p>Validate and save plan Called by the agent to validate and save the plan</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>plan</code> (object): Plan object</li>
+</ul>
+<strong>Returns:</strong> object - Quality report</p><h3>createPlan(data)</h3><p>Create a plan object from structured data Helper for agents to structure their output</p><p><strong>Parameters:</strong></p><ul><li><code>data</code> (object): Structured plan data</li>
+</ul>
+<strong>Returns:</strong> object - Plan object</p><h3>executeSpecifyPhase(baseDir, projectName, projectDescription, constitution)</h3><p>Specify Phase Orchestrator Launches Requirements Analyst agent to create specification</p><h3>executeSpecifyPhase(baseDir, projectName, projectDescription, constitution)</h3><p>Execute the specify phase This launches the Requirements Analyst agent</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>projectName</code> (string): Project name</li>
+<li><code>projectDescription</code> (string): User's project description</li>
+<li><code>constitution</code> (object): Constitution data</li>
+</ul>
+<strong>Returns:</strong> Promise<object> - Specification data and quality report</p><h3>validateAndSaveSpecification(baseDir, spec)</h3><p>Validate and save specification Called by the agent to validate and save the spec</p><p><strong>Parameters:</strong></p><ul><li><code>baseDir</code> (string): Base directory (.speckit/)</li>
+<li><code>spec</code> (object): Specification object</li>
+</ul>
+<strong>Returns:</strong> object - Quality report</p><h3>createSpecification(data)</h3><p>Create a specification object from structured data Helper for agents to structure their output</p><p><strong>Parameters:</strong></p><ul><li><code>data</code> (object): Structured specification data</li>
+</ul>
+<strong>Returns:</strong> object - Specification object
+</p>
+</body>
+</html>

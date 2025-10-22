@@ -40,75 +40,48 @@ export async function constituteCommand(args, flags) {
 
   console.log('');
   console.log(colors.bright('═'.repeat(60)));
-  console.log(colors.bright('📜 Phase 1: Constitute - Define Project Principles'));
+  console.log(colors.bright('📜 Phase 1: Constitute - Quick Setup'));
   console.log(colors.bright('═'.repeat(60)));
   console.log('');
-  console.log('Let\'s establish the guiding principles for your project.');
-  console.log('This constitution will serve as the north star for all decisions.\n');
+  console.log('Let\'s get started. Just a couple quick questions...\n');
 
-  // Gather responses
+  // Gather responses (streamlined)
   const responses = {
     principles: [],
     priorities: [],
-    nonNegotiables: [],
-    successCriteria: []
+    constraints: []
   };
 
-  // Question 1: Purpose
-  console.log(colors.bright('Question 1: Core Purpose'));
-  console.log(colors.dim('What is the core purpose of this project? (1-2 sentences)\n'));
-  responses.purpose = await prompt('Purpose');
-  console.log('');
+  // Question 1: What are you building? (REQUIRED)
+  console.log(colors.bright('What are you building?'));
+  console.log(colors.dim('(Be as brief or detailed as you want)\n'));
+  responses.purpose = await prompt('Project');
 
-  // Question 2: Principles
-  console.log(colors.bright('Question 2: Guiding Principles'));
-  console.log(colors.dim('What principles should guide decisions? (3-5 principles)\n'));
-
-  const numPrinciples = parseInt(await prompt('How many principles? (3-5)', '3'));
-
-  for (let i = 0; i < numPrinciples; i++) {
-    console.log(colors.cyan(`\nPrinciple ${i + 1}:`));
-    const title = await prompt('  Title');
-    const description = await prompt('  Description');
-    responses.principles.push({ title, description });
+  if (!responses.purpose || responses.purpose.trim() === '') {
+    log.error('Project description required');
+    return { success: false };
   }
   console.log('');
 
-  // Question 3: Priorities
-  console.log(colors.bright('Question 3: Priorities'));
-  console.log(colors.dim('What should this project optimize for? (2-4 priorities)\n'));
+  // Question 2: Any specific priorities? (OPTIONAL)
+  console.log(colors.bright('Any specific priorities?'));
+  console.log(colors.dim('(e.g., "fast and simple", "secure", or just hit enter to skip)\n'));
+  const priorities = await prompt('Priorities (optional)', '');
 
-  const numPriorities = parseInt(await prompt('How many priorities? (2-4)', '3'));
-
-  for (let i = 0; i < numPriorities; i++) {
-    console.log(colors.cyan(`\nPriority ${i + 1}:`));
-    const name = await prompt('  Name');
-    const rationale = await prompt('  Rationale');
-    responses.priorities.push({ name, rationale });
+  if (priorities && priorities.trim()) {
+    // Parse comma-separated priorities
+    responses.priorities = priorities.split(',').map(p => p.trim()).filter(p => p);
   }
   console.log('');
 
-  // Question 4: Non-negotiables
-  console.log(colors.bright('Question 4: Non-Negotiables'));
-  console.log(colors.dim('What will you NOT compromise on? (1-5 items)\n'));
+  // Question 3: Anything to avoid? (OPTIONAL)
+  console.log(colors.bright('Anything to avoid or constraints?'));
+  console.log(colors.dim('(e.g., "no databases", "keep it simple", or just hit enter to skip)\n'));
+  const constraints = await prompt('Constraints (optional)', '');
 
-  const numNonNegotiables = parseInt(await prompt('How many non-negotiables? (1-5)', '3'));
-
-  for (let i = 0; i < numNonNegotiables; i++) {
-    const item = await prompt(`  Non-negotiable ${i + 1}`);
-    responses.nonNegotiables.push(item);
-  }
-  console.log('');
-
-  // Question 5: Success criteria
-  console.log(colors.bright('Question 5: Success Criteria'));
-  console.log(colors.dim('How will you know this project succeeded? (2-5 measurable outcomes)\n'));
-
-  const numCriteria = parseInt(await prompt('How many success criteria? (2-5)', '3'));
-
-  for (let i = 0; i < numCriteria; i++) {
-    const criterion = await prompt(`  Success criterion ${i + 1}`);
-    responses.successCriteria.push(criterion);
+  if (constraints && constraints.trim()) {
+    // Parse comma-separated constraints
+    responses.constraints = constraints.split(',').map(c => c.trim()).filter(c => c);
   }
   console.log('');
 

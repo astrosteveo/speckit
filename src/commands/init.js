@@ -195,6 +195,11 @@ MIT
     // Initialize workflow
     const state = initWorkflow(speckitDir, workflowId, name);
 
+    // Create subdirectories
+    mkdirSync(join(speckitDir, 'quality'), { recursive: true });
+    mkdirSync(join(speckitDir, 'docs'), { recursive: true });
+    mkdirSync(join(speckitDir, 'templates'), { recursive: true });
+
     // Create initial git commit if we initialized git
     if (gitInitialized) {
       try {

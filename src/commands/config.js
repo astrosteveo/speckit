@@ -4,8 +4,8 @@
  * Get or set configuration values
  */
 
-import { colors, log, table } from '../core/cli.js';
-import { get, set, unset, list } from '../core/config.js';
+import { colors, log, table, confirm } from '../core/cli.js';
+import { get, set, unset, list, reset } from '../core/config.js';
 
 export async function configCommand(args, flags) {
   const action = args[0]; // get, set, unset, list
@@ -14,43 +14,31 @@ export async function configCommand(args, flags) {
 
   // List all config
   if (!action || action === 'list') {
-    const config = list();
+    const configList = list();
 
     console.log('');
     console.log(colors.bright('⚙️  Configuration'));
     console.log('');
 
-    // Convert config to table format
-    const rows = [];
-
-    function flatten(obj, prefix = '') {
-      for (const [k, v] of Object.entries(obj)) {
-        const fullKey = prefix ? `${prefix}.${k}` : k;
-
-        if (v && typeof v === 'object' && !Array.isArray(v)) {
-          flatten(v, fullKey);
-        } else {
-          rows.push({
-            key: fullKey,
-            value: Array.isArray(v) ? `[${v.join(', ')}]` : String(v)
-          });
-        }
-      }
-    }
-
-    flatten(config);
+    // configList is an array of {key, value, source} objects
+    const rows = configList.map(item => ({
+      key: item.key,
+      value: Array.isArray(item.value) ? `[${item.value.join(', ')}]` : String(item.value),
+      source: item.source
+    }));
 
     table(rows, {
-      columns: ['key', 'value'],
-      headers: ['Key', 'Value']
+      columns: ['key', 'value', 'source'],
+      headers: ['Key', 'Value', 'Source']
     });
 
     console.log('');
     console.log(colors.dim('Use `speckit config get <key>` to get a specific value'));
     console.log(colors.dim('Use `speckit config set <key> <value>` to set a value'));
+    console.log(colors.dim('Use `speckit config reset` to restore defaults'));
     console.log('');
 
-    return { success: true, config };
+    return { success: true, config: configList };
   }
 
   // Get config value
@@ -121,9 +109,29 @@ export async function configCommand(args, flags) {
     return { success: removed };
   }
 
+  // Reset config to defaults
+  if (action === 'reset') {
+    const scope = flags.global ? 'global' : 'project';
+
+    const confirmed = await confirm(
+      `Reset ${scope} configuration to defaults?`,
+      false
+    );
+
+    if (!confirmed) {
+      log.info('Reset cancelled');
+      return { success: false };
+    }
+
+    reset({ global: flags.global });
+    log.success(`${scope.charAt(0).toUpperCase() + scope.slice(1)} configuration reset to defaults`);
+
+    return { success: true };
+  }
+
   // Unknown action
   log.error(`Unknown action: ${action}`);
-  log.info('Valid actions: get, set, unset, list');
+  log.info('Valid actions: get, set, unset, list, reset');
 
   return { success: false };
 }

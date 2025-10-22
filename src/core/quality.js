@@ -5,6 +5,14 @@
  * Principle: Quality is built-in, not bolted-on
  */
 
+import {
+  parseDependencyGraph,
+  validateDependencies,
+  calculateParallelizationScore,
+  calculateTimeSavings,
+  generateExecutionPlan
+} from './dependency-graph.js';
+
 const DEFAULT_SPEC_THRESHOLD = 85;
 const DEFAULT_PLAN_THRESHOLD = 85;
 const DEFAULT_IMPL_THRESHOLD = 80;
@@ -254,12 +262,62 @@ export function validatePlan(plan, options = {}) {
     }
   }
 
-  // Check for dependencies
-  const hasDependencies = plan.tasks?.some(task => task.dependencies && task.dependencies.length > 0);
-  if (!hasDependencies && taskCount > 3) {
-    actionability -= 20;
-    recommendations.push('Define task dependencies to show execution order');
+  // Enhanced dependency validation using dependency graph
+  let dependencyScore = 0;
+  let parallelizationBonus = 0;
+
+  try {
+    // Parse dependency graph from plan content
+    const graph = parseDependencyGraph(content);
+
+    if (Object.keys(graph).length > 0) {
+      // Validate dependencies (check for cycles, invalid references)
+      const validation = validateDependencies(graph);
+
+      if (!validation.valid) {
+        actionability -= 40; // Severe penalty for invalid dependencies
+        validation.errors.forEach(error => issues.push(error));
+        recommendations.push('Fix dependency errors before proceeding');
+      } else {
+        // Valid dependencies - award points
+        dependencyScore = 20;
+
+        // Calculate parallelization score and award bonus
+        const parallelScore = calculateParallelizationScore(graph);
+
+        if (parallelScore >= 70) {
+          parallelizationBonus = 15; // Excellent parallelization
+          recommendations.push('Excellent task parallelization - estimated time savings significant');
+        } else if (parallelScore >= 40) {
+          parallelizationBonus = 10; // Good parallelization
+        } else {
+          parallelizationBonus = 5; // Some parallelization
+          recommendations.push('Consider identifying more independent tasks for parallel execution');
+        }
+
+        // Calculate time savings and add to report
+        const timeSavings = calculateTimeSavings(graph);
+        if (timeSavings.saved > 0) {
+          const hours = Math.round(timeSavings.saved / 60 * 10) / 10;
+          recommendations.push(`Parallel execution could save ~${hours} hours (${Math.round(timeSavings.percentage)}%)`);
+        }
+      }
+    } else {
+      // No dependencies found
+      if (taskCount > 3) {
+        actionability -= 20;
+        recommendations.push('Define task dependencies to enable parallel execution and show order');
+      }
+    }
+  } catch (error) {
+    // Dependency parsing failed - not critical but worth noting
+    if (taskCount > 3) {
+      recommendations.push('Add Dependencies field to tasks for parallel execution planning');
+    }
   }
+
+  // Add dependency and parallelization bonuses
+  actionability += dependencyScore + parallelizationBonus;
 
   // Feasibility metrics
   let feasibility = 100;

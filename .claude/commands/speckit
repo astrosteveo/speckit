@@ -33,14 +33,18 @@ Parse the argument:
 
 ### Initialize New Workflow
 
-When starting a new workflow:
+When starting a new workflow, use the Bash tool to run the speckit CLI:
 
-```javascript
-import { initWorkflow } from './src/core/state.js';
-
-const workflowId = `${new Date().toISOString().split('T')[0]}-${projectName.toLowerCase().replace(/\s+/g, '-')}`;
-const state = initWorkflow('.speckit', workflowId, projectName);
+```bash
+speckit init [project-name] --yes
 ```
+
+This will:
+- Create .speckit/ directory structure
+- Initialize state.json with workflow tracking
+- Set up quality/, docs/, templates/ subdirectories
+
+To verify initialization succeeded, use Read tool to check `.speckit/state.json` exists.
 
 ### Phase Execution
 
@@ -77,39 +81,72 @@ Execute phases in order. For each phase:
    - If quality <85: Show issues and recommendations, refine
    - User must approve before proceeding
 
-4. **Implement Phase** (Agent-Driven, Task-by-Task)
-   - Use the Task tool with the Implementation Engineer agent
-   - For each task in the plan:
-     - Agent follows RED → GREEN → REFACTOR cycle
-     - Agent validates using `validateImplementation()` from quality.js
-     - Must pass all quality gates before proceeding to next task
-   - Track progress and show status
+4. **Implement Phase** (Agent-Driven, Parallel Execution)
+   - IMPORTANT: Execute tasks in PARALLEL when possible to reduce total time
+   - Parse dependency graph from PLAN.md
+   - Execute tasks in waves (topological sort):
+
+     **Wave Execution Process:**
+     1. Get next wave of tasks (tasks with satisfied dependencies)
+     2. If wave has multiple tasks, launch ALL tasks in parallel:
+        - Use multiple Task tool calls in a SINGLE message
+        - Each agent gets Implementation Engineer instructions
+        - All agents work simultaneously
+     3. Wait for all tasks in wave to complete
+     4. Move to next wave
+
+     **Single Task Tool Call Example:**
+     ```
+     Use Task tool with prompt:
+     "You are the Implementation Engineer for TASK-005.
+     [Full engineer.md instructions]
+     Follow RED → GREEN → REFACTOR cycle.
+     Dependencies completed: T001, T002"
+     ```
+
+     **Parallel Tasks Tool Call Example (CRITICAL):**
+     When wave has tasks T005, T006, T007 that can run in parallel:
+     - Make THREE Task tool calls in ONE message
+     - Do NOT wait between calls
+     - Each task runs independently
+
+   - Track progress: Show wave number, tasks in current wave, completed tasks
+   - Validate each task using `validateImplementation()` from quality.js
+   - Must pass quality gates before moving to next wave
    - Mark workflow complete when all tasks done
+   - Report total time saved through parallelization
 
 ### State Management
 
-Update state after each phase:
+**To start a phase:** Use Write tool to update `.speckit/state.json`
+- Set phase status to 'in_progress'
+- Set startedAt timestamp
 
-```javascript
-import { updatePhase } from './src/core/state.js';
+**To complete a phase:** Use Write tool to update `.speckit/state.json`
+- Set phase status to 'completed'
+- Set completedAt timestamp
+- Set quality score
+- Move currentPhase to next phase
 
-// When starting a phase
-updatePhase('.speckit', 'specify', 'in_progress');
-
-// When completing a phase
-updatePhase('.speckit', 'specify', 'completed', qualityScore);
+Or use Bash tool to run validation:
+```bash
+speckit validate spec    # Validates specification
+speckit validate plan    # Validates plan
 ```
 
 ### Progress Display
 
-Show progress using:
+Use Bash tool to check status:
 
-```javascript
-import { getProgress, getCurrentPhase } from './src/core/state.js';
-
-const progress = getProgress('.speckit');
-const currentPhase = getCurrentPhase('.speckit');
+```bash
+speckit status              # Show detailed progress
+speckit status --json       # Get JSON output
 ```
+
+Or use Read tool to load `.speckit/state.json` and display:
+- Current phase
+- Progress percentage (completed phases / total phases)
+- Quality scores for each completed phase
 
 Format:
 ```

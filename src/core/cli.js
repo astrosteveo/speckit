@@ -8,6 +8,10 @@
 import { createInterface } from 'readline';
 import { stdin, stdout } from 'process';
 
+// Check if colors should be used
+// Respect NO_COLOR env var and non-TTY environments
+const useColor = !process.env.NO_COLOR && stdout.isTTY;
+
 // ANSI escape codes
 const ANSI = {
   // Colors
@@ -44,27 +48,27 @@ const ANSI = {
 };
 
 /**
- * Color text
+ * Color text (respects NO_COLOR env var)
  */
 export const colors = {
-  reset: (text) => `${ANSI.reset}${text}${ANSI.reset}`,
-  bright: (text) => `${ANSI.bright}${text}${ANSI.reset}`,
-  dim: (text) => `${ANSI.dim}${text}${ANSI.reset}`,
+  reset: (text) => useColor ? `${ANSI.reset}${text}${ANSI.reset}` : text,
+  bright: (text) => useColor ? `${ANSI.bright}${text}${ANSI.reset}` : text,
+  dim: (text) => useColor ? `${ANSI.dim}${text}${ANSI.reset}` : text,
 
-  black: (text) => `${ANSI.black}${text}${ANSI.reset}`,
-  red: (text) => `${ANSI.red}${text}${ANSI.reset}`,
-  green: (text) => `${ANSI.green}${text}${ANSI.reset}`,
-  yellow: (text) => `${ANSI.yellow}${text}${ANSI.reset}`,
-  blue: (text) => `${ANSI.blue}${text}${ANSI.reset}`,
-  magenta: (text) => `${ANSI.magenta}${text}${ANSI.reset}`,
-  cyan: (text) => `${ANSI.cyan}${text}${ANSI.reset}`,
-  white: (text) => `${ANSI.white}${text}${ANSI.reset}`,
-  gray: (text) => `${ANSI.gray}${text}${ANSI.reset}`,
+  black: (text) => useColor ? `${ANSI.black}${text}${ANSI.reset}` : text,
+  red: (text) => useColor ? `${ANSI.red}${text}${ANSI.reset}` : text,
+  green: (text) => useColor ? `${ANSI.green}${text}${ANSI.reset}` : text,
+  yellow: (text) => useColor ? `${ANSI.yellow}${text}${ANSI.reset}` : text,
+  blue: (text) => useColor ? `${ANSI.blue}${text}${ANSI.reset}` : text,
+  magenta: (text) => useColor ? `${ANSI.magenta}${text}${ANSI.reset}` : text,
+  cyan: (text) => useColor ? `${ANSI.cyan}${text}${ANSI.reset}` : text,
+  white: (text) => useColor ? `${ANSI.white}${text}${ANSI.reset}` : text,
+  gray: (text) => useColor ? `${ANSI.gray}${text}${ANSI.reset}` : text,
 
-  success: (text) => `${ANSI.green}${text}${ANSI.reset}`,
-  error: (text) => `${ANSI.red}${text}${ANSI.reset}`,
-  warning: (text) => `${ANSI.yellow}${text}${ANSI.reset}`,
-  info: (text) => `${ANSI.cyan}${text}${ANSI.reset}`
+  success: (text) => useColor ? `${ANSI.green}${text}${ANSI.reset}` : text,
+  error: (text) => useColor ? `${ANSI.red}${text}${ANSI.reset}` : text,
+  warning: (text) => useColor ? `${ANSI.yellow}${text}${ANSI.reset}` : text,
+  info: (text) => useColor ? `${ANSI.cyan}${text}${ANSI.reset}` : text
 };
 
 /**
@@ -83,6 +87,13 @@ export class Spinner {
     if (this.isSpinning) return;
 
     this.isSpinning = true;
+
+    // In non-TTY environments, just print the message
+    if (!stdout.isTTY) {
+      console.log(this.message);
+      return;
+    }
+
     this.render();
 
     this.interval = setInterval(() => {
@@ -92,7 +103,9 @@ export class Spinner {
   }
 
   render() {
-    stdout.write(`${ANSI.clearLine}${ANSI.cursorStart}${colors.cyan(this.frames[this.frameIndex])} ${this.message}`);
+    if (stdout.isTTY) {
+      stdout.write(`${ANSI.clearLine}${ANSI.cursorStart}${colors.cyan(this.frames[this.frameIndex])} ${this.message}`);
+    }
   }
 
   succeed(message) {
@@ -156,6 +169,15 @@ export class ProgressBar {
 
   render() {
     const percentage = Math.floor((this.current / this.total) * 100);
+
+    // In non-TTY environments, only log at certain milestones
+    if (!stdout.isTTY) {
+      if (percentage % 25 === 0 && percentage > 0) {
+        console.log(`Progress: ${percentage}% ${this.message}`);
+      }
+      return;
+    }
+
     const filled = Math.floor((this.current / this.total) * this.width);
     const empty = this.width - filled;
 

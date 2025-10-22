@@ -33,7 +33,9 @@
     "workflow",
     "cli",
     "development",
-    "documentation"
+    "documentation",
+    "parallel-execution",
+    "dependency-graph"
   ],
   "author": "astrosteveo",
   "license": "MIT",

@@ -66,7 +66,8 @@ function extractSection(markdown, heading) {
 
 function extractComponents(markdown) {
   const components = [];
-  const componentRegex = /### Component \d+: (.+?)\n\n\*\*Technology\*\*: (.+?)\n/g;
+  // Make blank line optional (one or more newlines)
+  const componentRegex = /### Component \d+: (.+?)\n+\*\*Technology\*\*: (.+?)\n/g;
   let match;
 
   while ((match = componentRegex.exec(markdown)) !== null) {
@@ -81,7 +82,8 @@ function extractComponents(markdown) {
 
 function extractTasks(markdown) {
   const tasks = [];
-  const taskRegex = /#### (TASK-[\d.]+): (.+?)\n\n\*\*Effort\*\*: (\d+) hours/g;
+  // Support both T001-style and TASK-1.1 style task IDs
+  const taskRegex = /#### ((?:T\d{3}|TASK-[\d.]+)): (.+?)\n\n?\*\*Effort\*\*: (\d+) hours/g;
   let match;
 
   while ((match = taskRegex.exec(markdown)) !== null) {
@@ -89,8 +91,9 @@ function extractTasks(markdown) {
     const title = match[2];
     const effort = match[3];
 
-    // Extract dependencies
-    const depRegex = new RegExp(`#### ${taskId}:[\\s\\S]*?\\*\\*Dependencies\\*\\*: (.+?)\\n`, 'i');
+    // Extract dependencies (escape task ID for regex)
+    const escapedTaskId = taskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const depRegex = new RegExp(`#### ${escapedTaskId}:[\\s\\S]*?\\*\\*Dependencies\\*\\*: (.+?)\\n`, 'i');
     const depMatch = markdown.match(depRegex);
     const dependencies = depMatch && depMatch[1] !== 'None'
       ? depMatch[1].split(',').map(d => d.trim())

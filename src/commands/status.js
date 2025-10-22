@@ -62,7 +62,22 @@ export async function statusCommand(args, flags) {
       if (phase.status === 'completed') {
         statusIcon = colors.green('✅');
         statusText = colors.green('Complete');
-        qualityText = phase.quality ? colors.cyan(`${phase.quality.overall || phase.quality}/100`) : '';
+
+        // Color code quality scores: green ≥85%, yellow 70-84%, red <70%
+        if (phase.quality) {
+          const score = phase.quality.overall || phase.quality;
+          let scoreColor;
+          if (score >= 85) {
+            scoreColor = colors.green;
+          } else if (score >= 70) {
+            scoreColor = colors.yellow;
+          } else {
+            scoreColor = colors.red;
+          }
+          qualityText = scoreColor(`${score}/100`);
+        } else {
+          qualityText = '';
+        }
       } else if (phase.status === 'in_progress') {
         statusIcon = colors.yellow('⏳');
         statusText = colors.yellow('In Progress');

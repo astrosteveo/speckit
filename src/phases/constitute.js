@@ -25,28 +25,37 @@ const __dirname = dirname(__filename);
 export function executeConstitutePhase(baseDir, projectName, responses) {
   const {
     purpose,
-    principles,
     priorities,
-    nonNegotiables,
-    successCriteria
+    constraints
   } = responses;
+
+  // Auto-generate sensible principles based on SpecKit methodology
+  const autoPrinciples = [
+    {
+      index: 1,
+      title: 'Specification-Driven',
+      description: 'Build what\'s specified, specify what\'s needed'
+    },
+    {
+      index: 2,
+      title: 'Test-First Development',
+      description: 'Write tests before code (RED → GREEN → REFACTOR)'
+    },
+    {
+      index: 3,
+      title: 'Quality Over Speed',
+      description: 'Ship working, tested code - not rushed code'
+    }
+  ];
 
   // Build constitution data
   const constitution = {
     projectName,
     createdAt: new Date().toISOString(),
     purpose,
-    principles: principles.map((p, index) => ({
-      index: index + 1,
-      title: p.title,
-      description: p.description
-    })),
-    priorities: priorities.map(p => ({
-      name: p.name,
-      rationale: p.rationale
-    })),
-    nonNegotiables,
-    successCriteria
+    principles: autoPrinciples,
+    priorities: priorities.length > 0 ? priorities : ['Simplicity', 'Quality'],
+    constraints: constraints.length > 0 ? constraints : []
   };
 
   // Render template (use __dirname to get path relative to this module)
@@ -100,43 +109,26 @@ function renderTemplate(template, data) {
     }
   }
 
-  // For priorities
-  if (data.priorities) {
+  // For priorities (simple string array)
+  if (data.priorities && Array.isArray(data.priorities)) {
     const prioritiesBlock = rendered.match(/{{#priorities}}([\s\S]*?){{\/priorities}}/);
     if (prioritiesBlock) {
       const itemTemplate = prioritiesBlock[1];
       const renderedItems = data.priorities.map(priority => {
-        let item = itemTemplate;
-        Object.keys(priority).forEach(k => {
-          item = item.replace(new RegExp(`{{${k}}}`, 'g'), priority[k]);
-        });
-        return item;
+        return itemTemplate.replace(/{{priority}}/g, priority);
       }).join('');
       rendered = rendered.replace(prioritiesBlock[0], renderedItems);
     }
   }
 
-  // For simple arrays (nonNegotiables, successCriteria)
-  if (data.nonNegotiables) {
-    const block = rendered.match(/{{#nonNegotiables}}([\s\S]*?){{\/nonNegotiables}}/);
-    if (block) {
-      const itemTemplate = block[1];
-      const renderedItems = data.nonNegotiables.map(item => {
-        return itemTemplate.replace(/{{item}}/g, item);
-      }).join('');
-      rendered = rendered.replace(block[0], renderedItems);
-    }
-  }
-
-  if (data.successCriteria) {
-    const block = rendered.match(/{{#successCriteria}}([\s\S]*?){{\/successCriteria}}/);
-    if (block) {
-      const itemTemplate = block[1];
-      const renderedItems = data.successCriteria.map(criterion => {
-        return itemTemplate.replace(/{{criterion}}/g, criterion);
-      }).join('');
-      rendered = rendered.replace(block[0], renderedItems);
-    }
+  // For constraints (simple replacement)
+  if (data.constraints && Array.isArray(data.constraints) && data.constraints.length > 0) {
+    const constraintsList = data.constraints.map(c => `- ${c}`).join('\n');
+    const constraintsSection = `## Constraints\n\n${constraintsList}\n`;
+    rendered = rendered.replace('{{CONSTRAINTS_SECTION}}', constraintsSection);
+  } else {
+    // No constraints, remove placeholder
+    rendered = rendered.replace('{{CONSTRAINTS_SECTION}}', '');
   }
 
   return rendered;
