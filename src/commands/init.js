@@ -4,11 +4,15 @@
  * Initialize a new SpecKit workflow, optionally creating a new project directory
  */
 
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync, mkdirSync, writeFileSync, cpSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 import { colors, log, prompt, confirm, Spinner } from '../core/cli.js';
 import { initWorkflow, updatePhase } from '../core/state.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export async function initCommand(args, flags) {
   const projectName = args[0];
@@ -75,6 +79,7 @@ export async function initCommand(args, flags) {
       console.log(`  • .gitignore - Git ignore file`);
       console.log(`  • README.md - Project readme`);
     }
+    console.log(`  • .claude/ - Claude Code integration (agents, commands, hooks)`);
     console.log(`  • .speckit/state.json - Workflow state tracking`);
     console.log(`  • .speckit/quality/ - Quality reports`);
     console.log(`  • .speckit/CONSTITUTION.md - Project principles (after constitute phase)`);
@@ -210,6 +215,15 @@ MIT
     mkdirSync(join(speckitDir, 'quality'), { recursive: true });
     mkdirSync(join(speckitDir, 'docs'), { recursive: true });
     mkdirSync(join(speckitDir, 'templates'), { recursive: true });
+
+    // Copy .claude directory from package to project
+    const packageRoot = join(__dirname, '../..');
+    const claudeSource = join(packageRoot, '.claude');
+    const claudeDestination = join(projectDir, '.claude');
+
+    if (existsSync(claudeSource)) {
+      cpSync(claudeSource, claudeDestination, { recursive: true });
+    }
 
     // Create initial git commit if we initialized git
     if (gitInitialized) {

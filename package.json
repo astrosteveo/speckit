@@ -1,6 +1,6 @@
 {
   "name": "@astrosteveo/speckit",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Test-driven specification-first development toolkit for Claude Code",
   "main": "src/index.js",
   "type": "module",
