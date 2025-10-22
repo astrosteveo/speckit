@@ -149,14 +149,29 @@ Thumbs.db
 
 ## SpecKit Workflow
 
-This project uses SpecKit for structured development:
+This project uses SpecKit for structured, AI-powered development:
 
 1. **Constitute** - Define project principles and values
-2. **Specify** - Create detailed requirements
-3. **Plan** - Design technical architecture
-4. **Implement** - Build with TDD
+2. **Specify** - Create detailed requirements (AI-generated)
+3. **Plan** - Design architecture with dependency analysis
+4. **Implement** - Build with TDD in **parallel waves** (40-60% faster!)
 
-## Getting Started
+## Getting Started (Recommended)
+
+**Use Claude Code for AI-powered workflow with parallel execution:**
+
+\`\`\`bash
+# Open project in Claude Code
+claude
+
+# Start the workflow
+/speckit
+
+# Claude will guide you through all phases
+# Tasks will execute in parallel when possible!
+\`\`\`
+
+## CLI Usage (For Scripting/Automation)
 
 \`\`\`bash
 # Define project principles
@@ -168,15 +183,11 @@ speckit specify
 # Design architecture
 speckit plan
 
-# Start building
-speckit implement
-\`\`\`
-
-## Development
-
-\`\`\`bash
-# Check workflow progress
+# Check status
 speckit status
+
+# Validate plan (shows parallel execution analysis!)
+speckit validate plan
 
 # Validate current phase
 speckit validate
@@ -220,17 +231,22 @@ MIT
     );
 
     if (createdProject) {
-      console.log(`\n${colors.bright('Get started:')}`);
+      console.log(`\n${colors.bright('Get started with Claude Code (Recommended):')}`);
       console.log(`  ${colors.cyan(`cd ${projectName}`)}`);
-      console.log(`  ${colors.cyan('speckit constitute')}\n`);
+      console.log(`  ${colors.cyan('claude')}               ${colors.dim('# Open in Claude Code')}`);
+      console.log(`  ${colors.cyan('/speckit')}             ${colors.dim('# Start AI-powered workflow with parallel execution!')}\n`);
+
+      console.log(`${colors.bright('Or use CLI directly (for scripting/automation):')}`);
+      console.log(`  ${colors.cyan(`cd ${projectName}`)}`);
+      console.log(`  ${colors.cyan('speckit constitute')}  ${colors.dim('# Define principles')}`);
+      console.log(`  ${colors.cyan('speckit status')}      ${colors.dim('# Check progress')}\n`);
     }
 
-    console.log(`${colors.bright('Workflow phases:')}`);
-    console.log(`  1. Run ${colors.cyan('speckit constitute')} to define project principles`);
-    console.log(`  2. Run ${colors.cyan('speckit specify')} to create requirements`);
-    console.log(`  3. Run ${colors.cyan('speckit plan')} to design architecture`);
-    console.log(`  4. Run ${colors.cyan('speckit implement')} to build with TDD`);
-    console.log(`\nOr run ${colors.cyan('speckit status')} to see workflow progress\n`);
+    console.log(`${colors.dim('SpecKit Workflow Phases:')}`);
+    console.log(`${colors.dim('  1. Constitute → Define project principles')}`);
+    console.log(`${colors.dim('  2. Specify → Create detailed requirements')}`);
+    console.log(`${colors.dim('  3. Plan → Design architecture (with parallel execution!)')}`);
+    console.log(`${colors.dim('  4. Implement → Build with TDD in parallel waves')}\n`);
 
     return { success: true, state, createdProject, projectDir };
   } catch (error) {
