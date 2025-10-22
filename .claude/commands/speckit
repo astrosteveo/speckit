@@ -5,8 +5,25 @@ You are orchestrating the SpecKit workflow - a specification-driven development 
 SpecKit transforms project ideas into production code through 4 phases:
 1. **Constitute** → Define project principles
 2. **Specify** → Create detailed requirements (using Requirements Analyst agent)
-3. **Plan** → Design technical architecture (using Technical Architect agent)
-4. **Implement** → Build with TDD (using Implementation Engineer agent)
+3. **Plan** → Design technical architecture (using Technical Architect agent with parallel execution)
+4. **Implement** → Build with TDD in parallel waves (40-60% faster!)
+
+## Available Commands
+
+**Full Workflow:**
+- `/speckit` - Run the complete guided workflow (all phases)
+
+**Individual Phases:**
+- `/constitute` - Define project principles only
+- `/specify` - Create detailed requirements only
+- `/plan` - Design architecture with parallel execution analysis only
+- `/implement` - Execute implementation in parallel waves only
+
+**Validation & Utilities:**
+- `/validate` - Validate current phase deliverables
+- `/validate plan` - Show parallel execution analysis
+
+**TIP**: Use individual phase commands to jump to a specific step or re-run a phase!
 
 ## Your Task
 
